@@ -1605,6 +1605,7 @@ dependencies = [
  "anyhow",
  "clap",
  "rdf-shapes-core",
+ "serde_json",
 ]
 
 [[package]]
