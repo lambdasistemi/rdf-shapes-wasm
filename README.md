@@ -28,8 +28,9 @@ toolchain via [crane](https://github.com/ipetkov/crane) + rust-overlay.
 | `rdf-shapes-wasm` | `cdylib` + `rlib`. Thin `#[wasm_bindgen]` shims over the core. |
 | `rdf-shapes-cli` | Native `rdf-shapes` binary. Thin `clap` front end over the core. |
 
-The current surface is intentionally trivial (`version` / `ping`); the SPARQL
-and SHACL engines arrive with later spikes.
+The core exposes `query` (full SPARQL 1.1, via Oxigraph) and `validate`
+(SHACL Core, via rudof) over in-memory Turtle; the wasm and CLI shells
+marshal those to and from JSON. See [`docs/usage.md`](docs/usage.md).
 
 ## Commands
 

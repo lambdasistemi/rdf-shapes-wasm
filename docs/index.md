@@ -63,10 +63,11 @@ as a *differential oracle* — the reference implementation we measure
 parity against — never as a runtime dependency of the shipped artifact.
 
 !!! note "Status"
-    Early scaffolding. The current public surface is intentionally
-    trivial (`version` / `ping`) — it proves the toolchain end to end.
-    The real query and validate APIs land with the engine spikes
-    tracked in the [issues](https://github.com/lambdasistemi/rdf-shapes-wasm/issues).
+    The evaluation surface is live: `query` (full SPARQL 1.1) and
+    `validate` (SHACL Core) are exposed through the native CLI and the
+    wasm bundle. See [Usage](usage.md). Full W3C-suite conformance and
+    the Jena differential harness are tracked in the
+    [issues](https://github.com/lambdasistemi/rdf-shapes-wasm/issues).
 
 ## Where to go next
 
