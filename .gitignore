@@ -11,5 +11,8 @@ result-*
 /dist
 node_modules/
 
+# MkDocs build output
+/site
+
 # LLM investigation notes (local only)
 .llm/
