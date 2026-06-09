@@ -44,11 +44,17 @@
         checks = import ./nix/checks.nix { inherit pkgs craneEnv; };
 
         apps = import ./nix/apps.nix { inherit pkgs; };
+
+        # Reproducible rustdoc HTML, co-hosted under the docs site at
+        # `/api/`. Publishes even with doc warnings; the `doc` check
+        # enforces clean docs separately.
+        api-docs = import ./nix/api-docs.nix { inherit craneEnv; };
       in
       {
         packages = {
           default = packages.cli;
           inherit (packages) cli lib wasm-pkg;
+          inherit api-docs;
           release-artifacts = import ./nix/release.nix {
             inherit pkgs packages;
           };
