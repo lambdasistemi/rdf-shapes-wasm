@@ -1,0 +1,37 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+# Names the virtual workspace for crane so it does not fall back to a
+# placeholder when reading the root manifest.
+[workspace.metadata.crane]
+name = "rdf-shapes-wasm"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/lambdasistemi/rdf-shapes-wasm"
+rust-version = "1.85"
+
+[workspace.dependencies]
+# Trivial scaffold dependencies only. The heavy graph engines
+# (oxigraph, rudof) arrive with the spikes #3/#4, never here.
+wasm-bindgen = "=0.2.100"
+console_error_panic_hook = "0.1"
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+thiserror = "2"
+
+[workspace.lints.clippy]
+all = { level = "deny", priority = -1 }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

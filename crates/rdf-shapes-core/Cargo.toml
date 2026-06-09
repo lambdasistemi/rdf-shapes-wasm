@@ -1,0 +1,11 @@
+[package]
+name = "rdf-shapes-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Portable core logic for rdf-shapes-wasm; builds native and wasm32."
+
+[lints]
+workspace = true
