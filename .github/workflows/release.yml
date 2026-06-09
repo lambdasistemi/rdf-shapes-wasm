@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  # Maintains the release PR and cuts tags from Conventional Commits on
+  # main. Only runs on branch pushes, never on the tag it creates.
+  release-please:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          release-type: rust
+
+  # Builds the Nix-owned, reproducible release bundle on a tag and
+  # uploads it to the corresponding GitHub release.
+  artifacts:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: nixos
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          clean: false
+          path: checkout
+      - uses: cachix/cachix-action@v17
+        with:
+          name: paolino
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build release artifacts
+        id: build
+        working-directory: checkout
+        run: |
+          set -euo pipefail
+          out="$(nix build --quiet --print-out-paths .#release-artifacts)"
+          echo "out=$out" >>"$GITHUB_OUTPUT"
+      - name: Upload artifacts to the release
+        working-directory: checkout
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          OUT: ${{ steps.build.outputs.out }}
+        run: |
+          set -euo pipefail
+          gh=(nix --quiet shell nixpkgs#gh -c gh)
+          "${gh[@]}" release view "$TAG" >/dev/null 2>&1 \
+            || "${gh[@]}" release create "$TAG" \
+                 --title "rdf-shapes-wasm $TAG" \
+                 --generate-notes
+          "${gh[@]}" release upload "$TAG" "$OUT"/* --clobber
+
+  # Publishes the npm-shaped wasm package. Gated on a tag and on the
+  # npm token being present so it is a no-op until publishing is set up.
+  npm-publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: artifacts
+    runs-on: nixos
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+          path: checkout
+      - uses: cachix/cachix-action@v17
+        with:
+          name: paolino
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Publish to npm
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        working-directory: checkout
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          pkg="$(nix build --quiet --print-out-paths .#wasm-pkg)"
+          tmp="$(mktemp -d)"
+          cp -r "$pkg"/* "$tmp/"
+          chmod -R u+w "$tmp"
+          ( cd "$tmp" \
+            && echo "//registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN" > .npmrc \
+            && nix --quiet shell nixpkgs#nodejs -c npm publish --access public )
