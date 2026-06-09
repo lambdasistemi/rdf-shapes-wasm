@@ -1,0 +1,24 @@
+cabal-version:   3.0
+name:            wasmtime-hs-ghc9123-probe
+version:         0.1.0
+synopsis:        spike#5 probe: depend on wasmtime-hs under ghc9123
+build-type:      Simple
+
+-- A trivial executable whose ONLY purpose is to force the solver (and
+-- then GHC 9.12.3) to actually build `wasmtime-hs`. If this compiles,
+-- Option A is viable on the org default compiler; if the solver or GHC
+-- rejects it, that is the decisive strike the verdict must headline.
+--
+-- When it builds, it also doubles as the Option-A smoke: it instantiates
+-- the WASI-loadable wasm module and reads a string out of linear memory
+-- (the same marshalling the server would use), proving the binding works
+-- end to end under ghc9123 — not merely that it links.
+executable wasmtime-hs-ghc9123-probe
+    main-is:          Smoke.hs
+    hs-source-dirs:   .
+    default-language: Haskell2010
+    ghc-options:      -O0
+    build-depends:
+        base,
+        bytestring,
+        wasmtime-hs

@@ -1,0 +1,25 @@
+[package]
+name = "rdf-shapes-server-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "SPIKE (#5): C-ABI shell over rdf-shapes-core for the server host."
+
+# A C-ABI `cdylib` with NO wasm-bindgen. Built two ways by the spike:
+#   * `wasm32-unknown-unknown`  -> a plain wasm module wasmtime can load
+#                                  (Option A: wasm-on-server via wasmtime-hs)
+#   * the native host triple    -> a `.so`/`.dylib` for Haskell FFI
+#                                  (Option B: native cdylib via foreign import ccall)
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rdf-shapes-core = { path = "../rdf-shapes-core", version = "0.1.0" }
+
+# This crate is intentionally exempt from the workspace `unsafe_code =
+# "forbid"` lint: a C ABI over linear memory is irreducibly `unsafe`.
+# Spikes are exempt from lint gates (see issue #5), so we do not wire
+# it into `nix flake check`.
+[lints]

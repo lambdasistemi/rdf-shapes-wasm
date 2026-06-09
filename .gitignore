@@ -6,6 +6,11 @@
 result
 result-*
 
+# Haskell (spike host probes)
+dist-newstyle/
+*.env
+.ghc.environment.*
+
 # wasm-bindgen / npm output
 /pkg
 /dist

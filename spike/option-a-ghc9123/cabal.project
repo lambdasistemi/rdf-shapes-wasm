@@ -1,0 +1,20 @@
+-- SPIKE (#5) Option A crux probe — see flake.nix.
+--
+-- wasmtime-hs is NOT on Hackage (version 0.0.0.0, no releases ever), so
+-- it must come from git. This is exactly the `source-repository-package`
+-- + SHA pin amaru-treasury-tx would need to add to its own cabal.project
+-- to take the Option-A dependency.
+index-state: 2026-02-17T10:15:41Z
+
+packages: .
+
+source-repository-package
+    type: git
+    location: https://github.com/dfinity/wasmtime-hs
+    tag: 6f223bb4b2b3e620ef378c383ee6af95eace6e19
+    --sha256: sha256-IpnvU84ch7Zj/iFatJ9a1g6xJUgSVzJP9lgs3/6BG0g=
+
+-- Probe: can we punch through the primitive<0.9 wall with allow-newer?
+-- If the solver now produces a plan, the question becomes whether
+-- wasmtime-hs's SOURCE compiles against primitive-0.9 (API break or not).
+allow-newer: wasmtime-hs:primitive, wasmtime-hs:base, wasmtime-hs:vector, wasmtime-hs:transformers, wasmtime-hs:bytestring
