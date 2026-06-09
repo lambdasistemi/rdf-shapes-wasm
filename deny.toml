@@ -1,0 +1,39 @@
+# cargo-deny configuration. See https://embarkstudios.github.io/cargo-deny/
+
+# Evaluate the dependency graph for the native host triples plus the
+# wasm target the artifact ships for, so target-specific dependencies
+# are resolved the same way the real builds resolve them.
+[graph]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-apple-darwin",
+    "wasm32-unknown-unknown",
+]
+all-features = true
+
+[advisories]
+yanked = "deny"
+
+[licenses]
+# Exactly the licenses encountered in the trivial scaffold tree
+# (Apache-2.0 / MIT dual-licensed crates plus the Unicode data
+# license). Expand deliberately as real dependencies arrive with the
+# spikes; an unused allowance below would otherwise warn.
+allow = [
+    "Apache-2.0",
+    "MIT",
+    "Unicode-3.0",
+]
+confidence-threshold = 0.93
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+# Workspace-internal path dependencies carry a version and are not
+# real wildcards; exempt them so the gate flags only true wildcards.
+allow-wildcard-paths = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
