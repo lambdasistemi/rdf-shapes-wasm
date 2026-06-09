@@ -57,15 +57,13 @@ fn main() -> Result<()> {
 /// Loads the graph and query files, evaluates, and prints the typed
 /// results as pretty JSON.
 fn run_query(graph: &PathBuf, query: &PathBuf) -> Result<()> {
-    let graph_ttl = fs::read_to_string(graph)
-        .with_context(|| format!("reading graph {}", graph.display()))?;
-    let sparql = fs::read_to_string(query)
-        .with_context(|| format!("reading query {}", query.display()))?;
+    let graph_ttl =
+        fs::read_to_string(graph).with_context(|| format!("reading graph {}", graph.display()))?;
+    let sparql =
+        fs::read_to_string(query).with_context(|| format!("reading query {}", query.display()))?;
 
-    let results = rdf_shapes_core::query(&graph_ttl, &sparql)
-        .context("SPARQL query failed")?;
-    let json = serde_json::to_string_pretty(&results)
-        .context("serializing results")?;
+    let results = rdf_shapes_core::query(&graph_ttl, &sparql).context("SPARQL query failed")?;
+    let json = serde_json::to_string_pretty(&results).context("serializing results")?;
     println!("{json}");
     Ok(())
 }
@@ -73,15 +71,14 @@ fn run_query(graph: &PathBuf, query: &PathBuf) -> Result<()> {
 /// Loads the data and shapes files, validates, and prints the report
 /// as pretty JSON.
 fn run_validate(data: &PathBuf, shapes: &PathBuf) -> Result<()> {
-    let data_ttl = fs::read_to_string(data)
-        .with_context(|| format!("reading data {}", data.display()))?;
+    let data_ttl =
+        fs::read_to_string(data).with_context(|| format!("reading data {}", data.display()))?;
     let shapes_ttl = fs::read_to_string(shapes)
         .with_context(|| format!("reading shapes {}", shapes.display()))?;
 
-    let report = rdf_shapes_core::validate(&data_ttl, &shapes_ttl)
-        .context("SHACL validation failed")?;
-    let json = serde_json::to_string_pretty(&report)
-        .context("serializing report")?;
+    let report =
+        rdf_shapes_core::validate(&data_ttl, &shapes_ttl).context("SHACL validation failed")?;
+    let json = serde_json::to_string_pretty(&report).context("serializing report")?;
     println!("{json}");
     Ok(())
 }
