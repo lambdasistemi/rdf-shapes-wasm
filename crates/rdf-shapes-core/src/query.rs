@@ -29,12 +29,8 @@ use crate::results::QueryResults;
 /// - [`ShapesError::Parse`] if the Turtle graph fails to load or a
 ///   result cannot be serialized.
 /// - [`ShapesError::Query`] if the SPARQL fails to parse or evaluate.
-pub fn query(
-    graph_ttl: &str,
-    sparql: &str,
-) -> Result<QueryResults, ShapesError> {
-    let store = Store::new()
-        .map_err(|e| ShapesError::Parse(format!("store init: {e}")))?;
+pub fn query(graph_ttl: &str, sparql: &str) -> Result<QueryResults, ShapesError> {
+    let store = Store::new().map_err(|e| ShapesError::Parse(format!("store init: {e}")))?;
     store
         .load_from_slice(RdfFormat::Turtle, graph_ttl.as_bytes())
         .map_err(|e| ShapesError::Parse(format!("turtle load: {e}")))?;
@@ -49,49 +45,37 @@ pub fn query(
     match results {
         OxQueryResults::Solutions(solutions) => {
             let variables = solutions.variables().to_vec();
-            let serializer =
-                QueryResultsSerializer::from_format(QueryResultsFormat::Json);
+            let serializer = QueryResultsSerializer::from_format(QueryResultsFormat::Json);
             let mut writer = serializer
                 .serialize_solutions_to_writer(Vec::new(), variables)
-                .map_err(|e| {
-                    ShapesError::Parse(format!("results json: {e}"))
-                })?;
+                .map_err(|e| ShapesError::Parse(format!("results json: {e}")))?;
             for solution in solutions {
-                let solution = solution.map_err(|e| {
-                    ShapesError::Query(format!("solution: {e}"))
-                })?;
-                writer.serialize(&solution).map_err(|e| {
-                    ShapesError::Parse(format!("results json: {e}"))
-                })?;
+                let solution =
+                    solution.map_err(|e| ShapesError::Query(format!("solution: {e}")))?;
+                writer
+                    .serialize(&solution)
+                    .map_err(|e| ShapesError::Parse(format!("results json: {e}")))?;
             }
-            let bytes = writer.finish().map_err(|e| {
-                ShapesError::Parse(format!("results json: {e}"))
-            })?;
-            let json = serde_json::from_slice(&bytes).map_err(|e| {
-                ShapesError::Parse(format!("results json: {e}"))
-            })?;
+            let bytes =
+                writer.finish().map_err(|e| ShapesError::Parse(format!("results json: {e}")))?;
+            let json = serde_json::from_slice(&bytes)
+                .map_err(|e| ShapesError::Parse(format!("results json: {e}")))?;
             Ok(QueryResults::Solutions { json })
         }
-        OxQueryResults::Boolean(value) => {
-            Ok(QueryResults::Boolean { value })
-        }
+        OxQueryResults::Boolean(value) => Ok(QueryResults::Boolean { value }),
         OxQueryResults::Graph(triples) => {
-            let mut serializer = RdfSerializer::from_format(RdfFormat::NTriples)
-                .for_writer(Vec::new());
+            let mut serializer =
+                RdfSerializer::from_format(RdfFormat::NTriples).for_writer(Vec::new());
             for triple in triples {
-                let triple = triple.map_err(|e| {
-                    ShapesError::Query(format!("triple: {e}"))
-                })?;
-                serializer.serialize_triple(&triple).map_err(|e| {
-                    ShapesError::Parse(format!("ntriples: {e}"))
-                })?;
+                let triple = triple.map_err(|e| ShapesError::Query(format!("triple: {e}")))?;
+                serializer
+                    .serialize_triple(&triple)
+                    .map_err(|e| ShapesError::Parse(format!("ntriples: {e}")))?;
             }
-            let bytes = serializer.finish().map_err(|e| {
-                ShapesError::Parse(format!("ntriples: {e}"))
-            })?;
-            let ntriples = String::from_utf8(bytes).map_err(|e| {
-                ShapesError::Parse(format!("ntriples utf8: {e}"))
-            })?;
+            let bytes =
+                serializer.finish().map_err(|e| ShapesError::Parse(format!("ntriples: {e}")))?;
+            let ntriples = String::from_utf8(bytes)
+                .map_err(|e| ShapesError::Parse(format!("ntriples utf8: {e}")))?;
             Ok(QueryResults::Graph { ntriples })
         }
     }
@@ -128,22 +112,15 @@ WHERE { ?tx a cardano:Transaction . }
             panic!("expected Solutions, got {results:?}");
         };
         // SPARQL Results JSON: head.vars lists the projected variable.
-        let vars = json["head"]["vars"]
-            .as_array()
-            .expect("head.vars present");
+        let vars = json["head"]["vars"].as_array().expect("head.vars present");
         assert_eq!(vars, &[serde_json::json!("transactions")]);
         // One binding row, the count as a typed xsd:integer literal.
-        let bindings = json["results"]["bindings"]
-            .as_array()
-            .expect("bindings present");
+        let bindings = json["results"]["bindings"].as_array().expect("bindings present");
         assert_eq!(bindings.len(), 1);
         let term = &bindings[0]["transactions"];
         assert_eq!(term["type"], "literal");
         assert_eq!(term["value"], "3");
-        assert_eq!(
-            term["datatype"],
-            "http://www.w3.org/2001/XMLSchema#integer"
-        );
+        assert_eq!(term["datatype"], "http://www.w3.org/2001/XMLSchema#integer");
     }
 
     #[test]
@@ -162,9 +139,6 @@ ASK { ?tx a cardano:Transaction . }
     #[test]
     fn malformed_query_is_a_query_error() {
         let err = query(SAMPLE, "SELEKT bogus {").expect_err("must fail");
-        assert!(
-            matches!(err, ShapesError::Query(_)),
-            "expected Query error, got {err:?}"
-        );
+        assert!(matches!(err, ShapesError::Query(_)), "expected Query error, got {err:?}");
     }
 }

@@ -10,9 +10,7 @@
 use rudof_rdf::rdf_core::RDFFormat;
 use rudof_rdf::rdf_impl::{InMemoryGraph, ReaderMode};
 use shacl_ir::compiled::schema_ir::SchemaIR;
-use shacl_validation::shacl_processor::{
-    GraphValidation, ShaclProcessor, ShaclValidationMode,
-};
+use shacl_validation::shacl_processor::{GraphValidation, ShaclProcessor, ShaclValidationMode};
 use shacl_validation::store::Graph;
 
 use crate::error::ShapesError;
@@ -33,39 +31,24 @@ use crate::report::{ValidationReport, Violation};
 /// - [`ShapesError::Validation`] if the validator itself errors.
 /// - [`ShapesError::Unsupported`] if the shapes require a capability
 ///   outside SHACL Core (SHACL-SPARQL, remote graphs).
-pub fn validate(
-    data_ttl: &str,
-    shapes_ttl: &str,
-) -> Result<ValidationReport, ShapesError> {
+pub fn validate(data_ttl: &str, shapes_ttl: &str) -> Result<ValidationReport, ShapesError> {
     let reader_mode = ReaderMode::default();
 
     // Parse the data graph from Turtle (no fs, no network).
-    let data_graph = InMemoryGraph::from_str(
-        data_ttl,
-        &RDFFormat::Turtle,
-        None,
-        &reader_mode,
-    )
-    .map_err(|e| ShapesError::Parse(format!("data graph: {e}")))?;
+    let data_graph = InMemoryGraph::from_str(data_ttl, &RDFFormat::Turtle, None, &reader_mode)
+        .map_err(|e| ShapesError::Parse(format!("data graph: {e}")))?;
 
     // Compile the shapes graph into the SHACL IR.
-    let schema_ir = SchemaIR::from_str(
-        shapes_ttl,
-        &RDFFormat::Turtle,
-        None,
-        &reader_mode,
-    )
-    .map_err(|e| classify_shapes_error(&e.to_string()))?;
+    let schema_ir = SchemaIR::from_str(shapes_ttl, &RDFFormat::Turtle, None, &reader_mode)
+        .map_err(|e| classify_shapes_error(&e.to_string()))?;
 
     // Wrap the data graph in the in-memory store + Native processor.
     let store = Graph::from_graph(data_graph)
         .map_err(|e| ShapesError::Validation(format!("store: {e}")))?;
-    let mut processor =
-        GraphValidation::from_graph(store, ShaclValidationMode::Native);
+    let mut processor = GraphValidation::from_graph(store, ShaclValidationMode::Native);
 
-    let report = processor
-        .validate(&schema_ir)
-        .map_err(|e| classify_validation_error(&e.to_string()))?;
+    let report =
+        processor.validate(&schema_ir).map_err(|e| classify_validation_error(&e.to_string()))?;
 
     let mut violations: Vec<Violation> = report
         .results()
@@ -84,24 +67,15 @@ pub fn validate(
     // so the report is deterministic (and so the wasm and CLI surfaces
     // produce byte-identical output for the same inputs).
     violations.sort_by(|a, b| {
-        (
-            &a.focus_node,
-            &a.source_constraint_component,
-            &a.path,
-            &a.value,
-        )
-            .cmp(&(
-                &b.focus_node,
-                &b.source_constraint_component,
-                &b.path,
-                &b.value,
-            ))
+        (&a.focus_node, &a.source_constraint_component, &a.path, &a.value).cmp(&(
+            &b.focus_node,
+            &b.source_constraint_component,
+            &b.path,
+            &b.value,
+        ))
     });
 
-    Ok(ValidationReport {
-        conforms: report.conforms(),
-        violations,
-    })
+    Ok(ValidationReport { conforms: report.conforms(), violations })
 }
 
 /// Routes a shapes-compilation error to [`ShapesError::Unsupported`]
@@ -109,9 +83,7 @@ pub fn validate(
 /// [`ShapesError::Parse`].
 fn classify_shapes_error(message: &str) -> ShapesError {
     if mentions_unsupported(message) {
-        ShapesError::Unsupported(
-            "SHACL-SPARQL constraints and remote graphs are not supported",
-        )
+        ShapesError::Unsupported("SHACL-SPARQL constraints and remote graphs are not supported")
     } else {
         ShapesError::Parse(format!("shapes graph: {message}"))
     }
@@ -122,9 +94,7 @@ fn classify_shapes_error(message: &str) -> ShapesError {
 /// [`ShapesError::Validation`].
 fn classify_validation_error(message: &str) -> ShapesError {
     if mentions_unsupported(message) {
-        ShapesError::Unsupported(
-            "SHACL-SPARQL constraints and remote graphs are not supported",
-        )
+        ShapesError::Unsupported("SHACL-SPARQL constraints and remote graphs are not supported")
     } else {
         ShapesError::Validation(message.to_owned())
     }
@@ -133,9 +103,7 @@ fn classify_validation_error(message: &str) -> ShapesError {
 /// Heuristic: does the engine error reference an out-of-scope feature?
 fn mentions_unsupported(message: &str) -> bool {
     let lower = message.to_ascii_lowercase();
-    lower.contains("sparql")
-        || lower.contains("sh:sparql")
-        || lower.contains("remote")
+    lower.contains("sparql") || lower.contains("sh:sparql") || lower.contains("remote")
 }
 
 #[cfg(test)]
@@ -149,11 +117,7 @@ mod tests {
     #[test]
     fn conforming_graph_conforms() {
         let report = validate(CONFORMING, SHAPES).expect("validate ok");
-        assert!(
-            report.conforms,
-            "expected conformance, got {:?}",
-            report.violations
-        );
+        assert!(report.conforms, "expected conformance, got {:?}", report.violations);
         assert!(report.violations.is_empty());
     }
 

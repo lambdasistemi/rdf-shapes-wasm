@@ -19,9 +19,7 @@ use wasm_bindgen::JsValue;
 /// plain JS objects rather than `Map`s — otherwise nested JSON would
 /// read back as an empty object on the JS side.
 fn to_js(value: &impl Serialize) -> Result<JsValue, JsValue> {
-    value
-        .serialize(&Serializer::json_compatible())
-        .map_err(|e| JsValue::from_str(&e.to_string()))
+    value.serialize(&Serializer::json_compatible()).map_err(|e| JsValue::from_str(&e.to_string()))
 }
 
 /// Installs a panic hook that forwards Rust panics to `console.error`.
@@ -53,8 +51,8 @@ pub fn version() -> String {
 /// parse, or evaluation failure) as a thrown JS `Error`.
 #[wasm_bindgen]
 pub fn query(graph_ttl: &str, sparql: &str) -> Result<JsValue, JsValue> {
-    let results = rdf_shapes_core::query(graph_ttl, sparql)
-        .map_err(|e| JsValue::from_str(&e.to_string()))?;
+    let results =
+        rdf_shapes_core::query(graph_ttl, sparql).map_err(|e| JsValue::from_str(&e.to_string()))?;
     to_js(&results)
 }
 
@@ -70,10 +68,7 @@ pub fn query(graph_ttl: &str, sparql: &str) -> Result<JsValue, JsValue> {
 /// an unsupported SHACL-SPARQL / remote-graph construct) as a thrown
 /// JS `Error`.
 #[wasm_bindgen]
-pub fn validate(
-    data_ttl: &str,
-    shapes_ttl: &str,
-) -> Result<JsValue, JsValue> {
+pub fn validate(data_ttl: &str, shapes_ttl: &str) -> Result<JsValue, JsValue> {
     let report = rdf_shapes_core::validate(data_ttl, shapes_ttl)
         .map_err(|e| JsValue::from_str(&e.to_string()))?;
     to_js(&report)
