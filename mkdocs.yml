@@ -1,0 +1,60 @@
+site_name: rdf-shapes-wasm
+site_url: https://lambdasistemi.github.io/rdf-shapes-wasm/
+site_description: >-
+  Portable SPARQL 1.1 + SHACL Core engine compiled to WebAssembly.
+repo_url: https://github.com/lambdasistemi/rdf-shapes-wasm
+
+theme:
+  name: material
+  palette:
+    # Light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - navigation.path
+    - content.code.copy
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - tables
+  - footnotes
+  - def_list
+  # Needed so the API Reference page can embed the rustdoc iframe
+  # inside Markdown.
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+nav:
+  - Home: index.md
+  - Concepts: concepts.md
+  - Architecture: architecture.md
+  - Usage: usage.md
+  - API Reference: api-reference.md
