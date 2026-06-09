@@ -67,7 +67,7 @@ pub fn validate(
         .validate(&schema_ir)
         .map_err(|e| classify_validation_error(&e.to_string()))?;
 
-    let violations = report
+    let mut violations: Vec<Violation> = report
         .results()
         .iter()
         .map(|r| Violation {
@@ -79,6 +79,24 @@ pub fn validate(
             severity: format!("{:?}", r.severity()),
         })
         .collect();
+
+    // rudof does not guarantee result ordering; sort on a stable key
+    // so the report is deterministic (and so the wasm and CLI surfaces
+    // produce byte-identical output for the same inputs).
+    violations.sort_by(|a, b| {
+        (
+            &a.focus_node,
+            &a.source_constraint_component,
+            &a.path,
+            &a.value,
+        )
+            .cmp(&(
+                &b.focus_node,
+                &b.source_constraint_component,
+                &b.path,
+                &b.value,
+            ))
+    });
 
     Ok(ValidationReport {
         conforms: report.conforms(),

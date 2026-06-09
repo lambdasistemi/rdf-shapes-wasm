@@ -10,6 +10,8 @@ result-*
 /pkg
 /dist
 node_modules/
+# generated bundle linked by the parity smoke
+crates/rdf-shapes-wasm/smoke/pkg/
 
 # MkDocs build output
 /site
