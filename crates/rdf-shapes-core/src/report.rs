@@ -28,9 +28,10 @@ pub struct Violation {
     /// The offending value node, when the result carries one.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub value: Option<String>,
-    /// The `sh:sourceConstraintComponent` IRI (e.g. MinCountConstraint
-    /// Component, DatatypeConstraintComponent, NodeKindConstraint
-    /// Component).
+    /// The IRI identifying the failed constraint. rudof reports the
+    /// SHACL constraint *parameter* IRI (e.g. `sh:minCount`,
+    /// `sh:datatype`, `sh:nodeKind`) rather than the formal
+    /// `sh:...ConstraintComponent` IRI.
     pub source_constraint_component: String,
     /// The human-readable `sh:resultMessage`, when present.
     #[serde(skip_serializing_if = "Option::is_none")]

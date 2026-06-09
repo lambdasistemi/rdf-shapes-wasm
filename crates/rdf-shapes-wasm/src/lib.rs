@@ -44,3 +44,25 @@ pub fn query(graph_ttl: &str, sparql: &str) -> Result<JsValue, JsValue> {
     serde_wasm_bindgen::to_value(&results)
         .map_err(|e| JsValue::from_str(&e.to_string()))
 }
+
+/// Validates `data_ttl` against `shapes_ttl` (SHACL Core), returning
+/// the conformance report as a JS object.
+///
+/// The result mirrors [`rdf_shapes_core::ValidationReport`]: a
+/// `conforms` flag plus a `violations` array.
+///
+/// # Errors
+///
+/// Returns the [`rdf_shapes_core::ShapesError`] (parse, validation, or
+/// an unsupported SHACL-SPARQL / remote-graph construct) as a thrown
+/// JS `Error`.
+#[wasm_bindgen]
+pub fn validate(
+    data_ttl: &str,
+    shapes_ttl: &str,
+) -> Result<JsValue, JsValue> {
+    let report = rdf_shapes_core::validate(data_ttl, shapes_ttl)
+        .map_err(|e| JsValue::from_str(&e.to_string()))?;
+    serde_wasm_bindgen::to_value(&report)
+        .map_err(|e| JsValue::from_str(&e.to_string()))
+}
