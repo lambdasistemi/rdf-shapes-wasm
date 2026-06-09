@@ -6,6 +6,7 @@
 //! delegation to `rdf-shapes-core`.
 
 use wasm_bindgen::prelude::wasm_bindgen;
+use wasm_bindgen::JsError;
 
 /// Installs a panic hook that forwards Rust panics to `console.error`.
 ///
@@ -28,4 +29,20 @@ pub fn version() -> String {
 #[must_use]
 pub fn ping(input: &str) -> String {
     rdf_shapes_core::ping(input)
+}
+
+/// SPIKE (#3): runs `sparql` over the in-memory graph parsed from
+/// `turtle_data`, returning the JSON result string.
+///
+/// Delegates to [`rdf_shapes_core::query`]; on error the message is
+/// surfaced to JavaScript as a thrown `Error`.
+///
+/// # Errors
+///
+/// Returns the error from [`rdf_shapes_core::query`] (Turtle load,
+/// SPARQL parse, or evaluation failure) as a JS `Error`.
+#[wasm_bindgen]
+pub fn query(turtle_data: &str, sparql: &str) -> Result<String, JsError> {
+    rdf_shapes_core::query(turtle_data, sparql)
+        .map_err(|e| JsError::new(&e.to_string()))
 }

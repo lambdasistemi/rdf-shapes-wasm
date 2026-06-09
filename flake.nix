@@ -35,7 +35,9 @@
 
         # The pinned wasm-bindgen-cli. Its version MUST equal the
         # `wasm-bindgen` library version in Cargo.toml/Cargo.lock.
-        wasmBindgenCli = pkgs.wasm-bindgen-cli_0_2_100;
+        # SPIKE (#3): bumped to 0.2.108 to match the wasm-bindgen lib
+        # version forced by oxigraph 0.5.8's js-sys 0.3.85.
+        wasmBindgenCli = pkgs.wasm-bindgen-cli_0_2_108;
 
         packages = import ./nix/packages.nix {
           inherit pkgs craneEnv wasmBindgenCli;

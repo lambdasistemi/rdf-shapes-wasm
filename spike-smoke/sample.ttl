@@ -1,0 +1,12 @@
+# SPIKE (#3) sample graph. Three cardano:Transaction nodes plus a
+# little surrounding noise, enough to exercise the treasury tx-count
+# named query (and prove DISTINCT counting works).
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+
+<urn:tx:aaaa> a cardano:Transaction .
+<urn:tx:bbbb> a cardano:Transaction .
+<urn:tx:cccc> a cardano:Transaction .
+
+# Non-transaction noise that must NOT be counted.
+<urn:out:1> a cardano:Output .
+<urn:addr:1> a cardano:Address .

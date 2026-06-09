@@ -11,6 +11,10 @@ result-*
 /dist
 node_modules/
 
+# SPIKE (#3): generated wasm bundle for the headless smoke (rebuild it,
+# do not commit the 2 MB binary).
+/spike-smoke/pkg/
+
 # MkDocs build output
 /site
 

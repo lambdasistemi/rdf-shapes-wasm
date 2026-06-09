@@ -7,5 +7,14 @@ repository.workspace = true
 rust-version.workspace = true
 description = "Portable core logic for rdf-shapes-wasm; builds native and wasm32."
 
+[dependencies]
+# SPIKE (#3): in-memory SPARQL engine. default-features=false drops the
+# native rocksdb storage backend (won't build for wasm32); the `js`
+# feature wires oxsdatatypes/js + js-sys and getrandom's wasm_js backend
+# so blank-node id generation has a randomness source in the browser.
+oxigraph = { version = "0.5.8", default-features = false, features = ["js"] }
+serde_json = "1"
+thiserror.workspace = true
+
 [lints]
 workspace = true
