@@ -31,9 +31,18 @@ let
   # Cross-compilation arguments for the wasm cdylib. The wasm crate is
   # the only member built for this target, and it has no tests to run
   # under wasm, so checks are disabled here.
+  #
+  # getrandom_backend="wasm_js" selects getrandom 0.3's JS backend on
+  # wasm. oxigraph's `js` feature is happy without it, but rudof's
+  # transitive getrandom REQUIRES the cfg; setting it here is the
+  # superset that satisfies both engines in the combined crate. It is
+  # scoped to the wasm artifacts only — the native build never sees it.
+  # Mirrored in .cargo/config.toml so a bare `cargo check
+  # --target wasm32-unknown-unknown` resolves the same way.
   wasmArgs = commonArgs // {
     CARGO_BUILD_TARGET = "wasm32-unknown-unknown";
     cargoExtraArgs = "-p rdf-shapes-wasm";
+    CARGO_BUILD_RUSTFLAGS = ''--cfg getrandom_backend="wasm_js"'';
     doCheck = false;
   };
 

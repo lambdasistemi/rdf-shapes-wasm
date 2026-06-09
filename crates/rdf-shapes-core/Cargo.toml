@@ -7,5 +7,31 @@ repository.workspace = true
 rust-version.workspace = true
 description = "Portable core logic for rdf-shapes-wasm; builds native and wasm32."
 
+[dependencies]
+# SPARQL 1.1 query engine (in-memory store).
+oxigraph.workspace = true
+
+# SHACL Core validation (rudof family). The family is pinned as a set
+# in the workspace manifest; pulled in here directly so the in-memory
+# path (parse Turtle from &str -> InMemoryGraph, compile shapes ->
+# SchemaIR, read the validation report) is reachable.
+shacl_validation.workspace = true
+rudof_rdf.workspace = true
+sparql_service.workspace = true
+shacl_ir.workspace = true
+prefixmap.workspace = true
+mie.workspace = true
+
+# Structured results / reports.
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# Selects getrandom's JS backend on wasm (paired with the
+# getrandom_backend="wasm_js" RUSTFLAG). Native targets use the OS RNG
+# and need no entry here.
+getrandom.workspace = true
+
 [lints]
 workspace = true

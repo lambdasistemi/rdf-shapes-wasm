@@ -15,13 +15,51 @@ repository = "https://github.com/lambdasistemi/rdf-shapes-wasm"
 rust-version = "1.85"
 
 [workspace.dependencies]
-# Trivial scaffold dependencies only. The heavy graph engines
-# (oxigraph, rudof) arrive with the spikes #3/#4, never here.
-wasm-bindgen = "=0.2.100"
+# wasm-bindgen lib == the wasm-bindgen-cli pin in flake.nix (exact
+# patch). Bumped 0.2.100 -> 0.2.108 to match js-sys 0.3.85, pulled in
+# by oxigraph 0.5.8's `js` feature (spike #3 finding).
+wasm-bindgen = "=0.2.108"
 console_error_panic_hook = "0.1"
 clap = { version = "4", features = ["derive"] }
 anyhow = "1"
 thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde-wasm-bindgen = "0.6"
+
+# SPARQL 1.1 engine. default-features=false drops the native rocksdb
+# storage backend (won't build for wasm32); the `js` feature wires
+# js-sys + getrandom's wasm_js backend for blank-node id generation in
+# the browser (spike #3).
+#
+# `rdf-12` is REQUIRED here for the combined crate (not in the
+# SPARQL-only spike): the rudof family enables `oxrdf/rdf-12`, which
+# adds `oxrdf::Term::Triple`. Cargo feature-unifies oxrdf to rdf-12
+# for the whole tree, but oxigraph's own spargebra gates its
+# `Term::Triple` match arm behind `spargebra/sparql-12`. Enabling
+# `rdf-12` propagates `spareval/sparql-12 -> sparopt -> spargebra`, so
+# spargebra's match stays exhaustive against the rdf-12 oxrdf.
+oxigraph = { version = "0.5.8", default-features = false, features = ["js", "rdf-12"] }
+
+# SHACL Core validator (rudof family). The 0.2.x tree is internally
+# inconsistent across the iri_s -> rudof_iri rename at 0.2.14, so the
+# whole family is pinned EXACTLY to the last iri_s-era, wasm-capable
+# releases (spike #4). default-features=false drops the `sparql`
+# feature (reqwest / tokio["full"] / spargebra) that won't build for
+# wasm32, leaving the Native in-memory engine = SHACL Core.
+shacl_validation = { version = "=0.2.12", default-features = false }
+rudof_rdf = { version = "=0.2.12", default-features = false }
+sparql_service = { version = "=0.2.12", default-features = false }
+shacl_ir = "=0.2.9"
+prefixmap = "=0.2.9"
+mie = { version = "=0.2.9", default-features = false }
+
+# getrandom 0.3 reaches us transitively (oxigraph and rudof chains).
+# On wasm it needs the JS backend: the `wasm_js` feature plus the
+# build cfg getrandom_backend="wasm_js" (set as a wasm RUSTFLAG in
+# nix/crane.nix and .cargo/config.toml). This is the superset that
+# satisfies both engines in the combined crate.
+getrandom = { version = "0.3", features = ["wasm_js"] }
 
 [workspace.lints.clippy]
 all = { level = "deny", priority = -1 }
