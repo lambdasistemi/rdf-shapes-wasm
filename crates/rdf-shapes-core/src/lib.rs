@@ -6,10 +6,22 @@
 //! filesystem, or socket access, so it stays portable across every
 //! target.
 //!
-//! The heavy graph engines (Oxigraph for SPARQL, rudof for SHACL)
-//! are introduced by the de-risking spikes, not by this scaffold.
-//! For now the surface is intentionally trivial: a [`version`] and a
-//! [`ping`] that prove the toolchain end to end.
+//! The façade exposes two capabilities over in-memory Turtle:
+//!
+//! - [`query`] — full SPARQL 1.1 query via Oxigraph's in-memory store,
+//!   returning typed [`QueryResults`].
+//! - [`validate`] — SHACL Core validation via rudof, returning a
+//!   structured [`ValidationReport`].
+//!
+//! Every fallible path returns a [`ShapesError`]; nothing panics.
+
+mod error;
+mod report;
+mod results;
+
+pub use error::ShapesError;
+pub use report::{ValidationReport, Violation};
+pub use results::QueryResults;
 
 /// Returns the crate version, taken from the Cargo package metadata.
 ///
