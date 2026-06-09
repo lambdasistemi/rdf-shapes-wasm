@@ -13,8 +13,19 @@
 let
   craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
 
+  # crane's cleanCargoSource keeps only Rust/Cargo files; the core
+  # crate `include_str!`s Turtle testdata, so union the cargo sources
+  # with `.ttl` files (test fixtures) to keep them in the build closure.
+  src' = pkgs.lib.cleanSourceWith {
+    src = craneLib.path src;
+    filter =
+      path: type:
+      (craneLib.filterCargoSources path type)
+      || (pkgs.lib.hasSuffix ".ttl" path);
+  };
+
   commonArgs = {
-    src = craneLib.cleanCargoSource src;
+    src = src';
     strictDeps = true;
     pname = "rdf-shapes-wasm";
     version = "0.1.0";
