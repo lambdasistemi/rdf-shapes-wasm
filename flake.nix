@@ -80,7 +80,7 @@
       {
         packages = {
           default = packages.cli;
-          inherit (packages) cli lib wasm-pkg;
+          inherit (packages) cli lib wasm-pkg ffi-lib;
           inherit api-docs;
           playground = playground.bundle;
           release-artifacts = import ./nix/release.nix {

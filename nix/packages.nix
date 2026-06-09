@@ -42,6 +42,38 @@ let
     }
   );
 
+  # Native C-ABI shared library over the engine — the server/Haskell
+  # reuse contract, the native sibling of `wasm-pkg`. crane builds the
+  # `cdylib` to `$out/lib/librdf_shapes_ffi.{so,dylib}`; a post-build
+  # step runs the pinned `cbindgen` over the crate to emit the matching
+  # C header into `$out/include/rdf_shapes.h`. The header is generated
+  # (not committed) so it can never drift from the exported symbols.
+  #
+  # cbindgen shells out to `cargo metadata`, so cargo from the pinned
+  # toolchain is on PATH inside the crane builder; `parse_deps = false`
+  # in cbindgen.toml keeps it from descending into dependencies, so the
+  # generation is offline and deterministic.
+  ffi-lib = craneLib.buildPackage (
+    commonArgs
+    // {
+      inherit cargoArtifacts;
+      pname = "rdf-shapes-ffi";
+      cargoExtraArgs = "-p rdf-shapes-ffi";
+
+      nativeBuildInputs = [ pkgs.rust-cbindgen ];
+
+      postInstall = ''
+        mkdir -p "$out/include"
+        cbindgen \
+          --config crates/rdf-shapes-ffi/cbindgen.toml \
+          --crate rdf-shapes-ffi \
+          --lang c \
+          --output "$out/include/rdf_shapes.h" \
+          crates/rdf-shapes-ffi
+      '';
+    }
+  );
+
   version = commonArgs.version;
   npmName = "@lambdasistemi/rdf-shapes-wasm";
 
@@ -116,5 +148,5 @@ let
   };
 in
 {
-  inherit cli lib wasmCrate wasm-pkg;
+  inherit cli lib wasmCrate wasm-pkg ffi-lib;
 }
