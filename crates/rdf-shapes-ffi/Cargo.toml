@@ -1,0 +1,31 @@
+[package]
+name = "rdf-shapes-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Native C-ABI shared library over rdf-shapes-core."
+
+[lib]
+# A C-ABI shared library: `librdf_shapes_ffi.{so,dylib}`. No `rlib`
+# half — the round-trip tests live in this crate and run natively
+# against the cdylib's own symbols via `#[cfg(test)]`.
+crate-type = ["cdylib"]
+
+[dependencies]
+rdf-shapes-core = { path = "../rdf-shapes-core", version = "0.1.0" }
+serde.workspace = true
+serde_json.workspace = true
+
+# This crate is the ONLY workspace member that performs `unsafe` pointer
+# marshalling across the C-ABI boundary, so it cannot inherit the
+# workspace `unsafe_code = "forbid"` lint. It opts out of
+# `[lints] workspace = true` and sets its own surface: `unsafe_code`
+# is allowed (scoped to the FFI shims), while clippy stays denied so
+# the unsafe code is still held to the strict gate.
+[lints.rust]
+unsafe_code = "allow"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }

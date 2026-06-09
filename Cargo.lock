@@ -1626,6 +1626,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rdf-shapes-ffi"
+version = "0.1.0"
+dependencies = [
+ "rdf-shapes-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "rdf-shapes-wasm"
 version = "0.1.0"
 dependencies = [
