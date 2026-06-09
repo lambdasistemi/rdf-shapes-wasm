@@ -8,8 +8,11 @@ The engine exposes two capabilities over in-memory Turtle:
 - **`query`** — full SPARQL 1.1 query via Oxigraph's in-memory store.
 - **`validate`** — SHACL Core validation via rudof.
 
-Both are reachable through the native CLI and the browser (wasm)
-surface, and return equivalent results for equivalent inputs.
+Both are reachable through all three targets — the native CLI, the
+browser (wasm) bundle, and the native C-ABI FFI library — and return
+equivalent results for equivalent inputs. The browser bundle is live in
+the [playground](playground.md) (<a href="../app/index.html">open
+`/app/`</a>).
 
 ## Building
 
@@ -25,7 +28,10 @@ nix build .#lib
 # Reproducible, npm-shaped wasm bundle
 nix build .#wasm-pkg
 
-# CLI tarball + npm .tgz + bare .wasm + SHA256SUMS
+# Native C-ABI shared library + cbindgen header (the server reuse path)
+nix build .#ffi-lib
+
+# CLI tarball + npm .tgz + bare .wasm + FFI tarball + SHA256SUMS
 nix build .#release-artifacts
 
 # This documentation's Rust API reference (rustdoc HTML)
@@ -148,6 +154,42 @@ asserts the outputs match:
 nix develop -c crates/rdf-shapes-wasm/smoke/run-smoke.sh
 ```
 
+## The native FFI library (server / Haskell)
+
+`nix build .#ffi-lib` produces the C-ABI reuse contract — the same
+engine for a native host instead of the browser:
+
+- `lib/librdf_shapes_ffi.{so,dylib}` — the shared library, and
+- `include/rdf_shapes.h` — the cbindgen-generated header (generated, not
+  committed, so it can never drift from the exported symbols).
+
+This is the **server** path. The server runs the engine **natively,
+in-process via a C-ABI** — not on a wasm host. Spike
+[#5](https://github.com/lambdasistemi/rdf-shapes-wasm/issues/5) found
+`wasmtime-hs` blocked on GHC 9.12.3, so the Haskell backend links this
+library and calls it with `foreign import ccall`:
+
+```haskell
+foreign import ccall unsafe "rdf_shapes_query"
+    c_rdf_shapes_query :: CString -> CString -> IO CString
+
+foreign import ccall unsafe "rdf_shapes_validate"
+    c_rdf_shapes_validate :: CString -> CString -> IO CString
+
+foreign import ccall unsafe "rdf_shapes_string_free"
+    c_rdf_shapes_string_free :: CString -> IO ()
+```
+
+Each function takes UTF-8 C strings and returns a JSON envelope —
+`{"ok": <result>}` on success, `{"error": "<message>"}` on failure. The
+caller owns the returned string and frees it with
+`rdf_shapes_string_free`. A native smoke under
+`crates/rdf-shapes-ffi/smoke/` is the GHC 9.12.3 `ccall` proof:
+
+```bash
+nix develop -c crates/rdf-shapes-ffi/smoke/run-smoke.sh
+```
+
 ## Reproducibility
 
 The `.wasm` is byte-reproducible. Build it twice and compare:
@@ -158,6 +200,32 @@ nix build .#wasm-pkg --rebuild -o wp-b
 sha256sum wp-a/rdf_shapes_wasm_bg.wasm wp-b/rdf_shapes_wasm_bg.wasm
 # identical SHA-256
 ```
+
+## Reuse / downstream
+
+Both reuse contracts are flake outputs, so a downstream project consumes
+them by adding this repo as a flake input and referencing the package
+for its system. Both are Nix-built and verified consumable.
+
+**Browser wasm** — `rdf_shapes_wasm.js` + `rdf_shapes_wasm_bg.wasm`:
+
+```nix
+inputs.rdf-shapes-wasm.url = "github:lambdasistemi/rdf-shapes-wasm";
+# rdf-shapes-wasm.packages.${system}.wasm-pkg
+#   → rdf_shapes_wasm.js + rdf_shapes_wasm_bg.wasm
+```
+
+**Native FFI lib** — `lib/librdf_shapes_ffi.{so,dylib}` +
+`include/rdf_shapes.h`, consumed from Haskell via `foreign import ccall`:
+
+```nix
+inputs.rdf-shapes-wasm.url = "github:lambdasistemi/rdf-shapes-wasm";
+# rdf-shapes-wasm.packages.${system}.ffi-lib
+#   → lib/librdf_shapes_ffi.{so,dylib} + include/rdf_shapes.h
+```
+
+See the [README](https://github.com/lambdasistemi/rdf-shapes-wasm#downstream-reuse)
+for full copy-paste flake snippets for both outputs.
 
 ## The gate
 
