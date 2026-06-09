@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rdf-shapes playground — SPARQL + SHACL in the browser</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --raised: #21262d;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text-strong: #f0f6fc;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-bg: #1f3a5f;
+    --danger: #f85149;
+    --danger-bg: #2d1416;
+    --ok: #3fb950;
+    --ok-bg: #12261a;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #ffffff;
+      --surface: #f6f8fa;
+      --raised: #eaeef2;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --text-strong: #1f2328;
+      --muted: #656d76;
+      --accent: #0969da;
+      --accent-bg: #ddf4ff;
+      --danger: #cf222e;
+      --danger-bg: #ffebe9;
+      --ok: #1a7f37;
+      --ok-bg: #dafbe1;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  header h1 { font-size: 18px; margin: 0; color: var(--text-strong); }
+  header p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+  header a { color: var(--accent); }
+  main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 13px;
+    resize: vertical;
+    outline: none;
+  }
+  textarea:focus { border-color: var(--accent); }
+  .field { margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
+  button {
+    background: var(--accent-bg);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  button.secondary {
+    background: var(--raised);
+    border-color: var(--border);
+    color: var(--text);
+    font-weight: 500;
+  }
+  button:hover { filter: brightness(1.15); }
+  select {
+    background: var(--raised);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+  }
+  .result { margin-top: 8px; }
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    overflow: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    max-height: 360px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .error {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    white-space: pre-wrap;
+  }
+  .conforms { color: var(--ok); background: var(--ok-bg); border-color: var(--ok); }
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .badge.ok { background: var(--ok-bg); color: var(--ok); border-color: var(--ok); }
+  .badge.bad { background: var(--danger-bg); color: var(--danger); border-color: var(--danger); }
+  .pane-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .pane-head h2 { font-size: 14px; margin: 0; color: var(--text-strong); }
+  .copy-btn { font-size: 12px; padding: 4px 10px; }
+  .hint { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<script src="index.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+package:
+  name: rdf-shapes-playground
+  dependencies:
+    - prelude
+    - effect
+    - aff
+    - console
+    - halogen
+    - argonaut-core
+    - argonaut-codecs
+    - arrays
+    - maybe
+    - either
+    - foldable-traversable
+    - tuples
+    - strings
+    - web-html
+    - web-events
+    - dom-indexed
+  bundle:
+    module: Main
+    outfile: dist/index.js
+    platform: browser
+    type: app
+
+  test:
+    main: Test.Main
+    dependencies:
+      - spec
+
+workspace:
+  packageSet:
+    registry: 72.1.0

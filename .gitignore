@@ -13,6 +13,14 @@ node_modules/
 # generated bundle linked by the parity smoke
 crates/rdf-shapes-wasm/smoke/pkg/
 
+# PureScript playground build output (app/dist/index.html is source)
+app/dist/index.js
+app/dist/deps.js
+app/dist/bundle.js
+app/src/vendor/
+app/.spago/
+app/output/
+
 # MkDocs build output
 /site
 
