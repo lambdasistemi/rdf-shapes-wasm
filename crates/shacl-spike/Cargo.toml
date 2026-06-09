@@ -1,0 +1,67 @@
+# THROWAWAY de-risking spike crate (issue #4). Not part of the
+# production pure-core / thin-shell layout — kept separate so the
+# scaffold crates (`rdf-shapes-core`, `-wasm`, `-cli`) stay restorable.
+#
+# Goal: prove SHACL Core validation compiles + runs for
+# `wasm32-unknown-unknown` via the rudof project's `shacl_validation`
+# crate, over in-memory Turtle, with no fs / network / SPARQL.
+[package]
+name = "shacl-spike"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "THROWAWAY spike: SHACL Core validation in wasm via rudof."
+
+[lib]
+# cdylib -> the .wasm; rlib -> keeps it linkable from a host if needed.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen.workspace = true
+console_error_panic_hook.workspace = true
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# The rudof SHACL validator. `default-features = false` drops the
+# `sparql` feature, which is what pulls reqwest / tokio["full"] /
+# spargebra / sparesults — none of which build for wasm32. With the
+# feature off we get the Native (in-memory) engine only: SHACL Core.
+shacl_validation = { version = "0.2.12", default-features = false }
+
+# Pulled in directly so we can drive the in-memory path explicitly:
+# parse Turtle from a &str into an InMemoryGraph, compile the shapes
+# into a SchemaIR, and read the validation report back out.
+#
+# VERSION PIN — the rudof tree is internally inconsistent across the
+# 0.2.x line. `shacl_ast/_ir/_rdf` top out at 0.2.9, which still use
+# `iri_s` + `prefixmap ^0.2.3`. At `rudof_rdf >= 0.2.14` rudof renamed
+# `iri_s` -> `rudof_iri` (and bumped `prefixmap` to 0.2.20), which no
+# longer type-checks against `shacl_ast 0.2.9` (E0308: two distinct
+# `IriS` types). `rudof_rdf = 0.2.12` is the last `iri_s`-era release
+# AND the first with `reqwest`/`tokio` made optional + wasm cfg-gating,
+# so it is the only version that is both internally consistent here and
+# wasm-buildable. `sparql_service` (a non-optional dep of
+# `shacl_validation`) must be held on the same side of the rename.
+rudof_rdf = { version = "=0.2.12", default-features = false }
+sparql_service = { version = "=0.2.12", default-features = false }
+shacl_ir = "=0.2.9"
+
+# Same `iri_s` -> `rudof_iri` fault line, reached transitively via
+# `mie` (from sparql_service) and `prefixmap` (from rudof_rdf). Both
+# renamed at 0.2.14; the last `iri_s`-era releases are 0.2.9. Pinning
+# them here as direct deps holds the whole rudof tree on one side of
+# the rename so it type-checks.
+prefixmap = "=0.2.9"
+mie = { version = "=0.2.9", default-features = false }
+
+# getrandom 0.3 reaches us transitively (rudof -> oxrdf/oxiri chains).
+# On wasm it needs the JS backend; rudof already requests the
+# `wasm_js` feature, but the crate also requires the
+# `getrandom_backend="wasm_js"` cfg, set via RUSTFLAGS in the smoke.
+getrandom = { version = "0.3", features = ["wasm_js"] }
+
+# NOTE: deliberately NOT opting into `[lints] workspace = true`.
+# This is throwaway spike code; the constitution exempts spikes from
+# the production clippy / fmt / deny surface.

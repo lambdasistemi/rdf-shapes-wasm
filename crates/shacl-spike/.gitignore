@@ -1,0 +1,3 @@
+# wasm-bindgen output is a build product, not source. Regenerate with
+# the steps in README.md.
+/smoke/pkg/
