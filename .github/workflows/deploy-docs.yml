@@ -56,6 +56,17 @@ jobs:
           chmod -R u+w site/api
           test -f site/api/rdf_shapes_core/index.html
 
+      # Build the PureScript playground bundle and serve it under
+      # /app/, so the published Pages site carries the live tool.
+      - name: Build and inline the playground
+        run: |
+          out="$(nix build --quiet --print-out-paths .#playground)"
+          mkdir -p site/app
+          cp -L "$out"/index.html "$out"/index.js site/app/
+          chmod -R u+w site/app
+          test -f site/app/index.html
+          test -f site/app/index.js
+
       - name: Upload Pages artifact
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v5

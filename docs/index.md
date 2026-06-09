@@ -69,8 +69,15 @@ parity against — never as a runtime dependency of the shipped artifact.
     the Jena differential harness are tracked in the
     [issues](https://github.com/lambdasistemi/rdf-shapes-wasm/issues).
 
+## Try it now
+
+The [**Playground**](playground.md) runs SPARQL 1.1 and SHACL Core over
+pasted Turtle entirely in your browser, via this same wasm engine — no
+install, no server. It is the client-side dashboard above, live.
+
 ## Where to go next
 
+- [Playground](playground.md) — run SPARQL + SHACL in the browser.
 - [Concepts](concepts.md) — RDF, SPARQL 1.1, SHACL Core, and the wasm
   artifact, briefly.
 - [Architecture](architecture.md) — the pure-core / thin-shells crate
