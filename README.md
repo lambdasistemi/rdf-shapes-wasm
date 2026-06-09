@@ -65,7 +65,7 @@ Everything runs through Nix, so the gate is identical locally and in CI.
 | `nix build .#cli` | Native CLI; run `./result/bin/rdf-shapes --help`. |
 | `nix build .#wasm-pkg` | Reproducible, npm-shaped wasm bundle (pinned `wasm-bindgen-cli` + `wasm-opt -Oz`). |
 | `nix build .#ffi-lib` | Native C-ABI shared library: `lib/librdf_shapes_ffi.{so,dylib}` + `include/rdf_shapes.h` (cbindgen-generated). |
-| `nix build .#release-artifacts` | CLI tarball + npm `.tgz` + bare `.wasm` + `SHA256SUMS`. |
+| `nix build .#release-artifacts` | CLI tarball + npm `.tgz` + bare `.wasm` + native FFI lib tarball + `SHA256SUMS`. |
 
 The `.wasm` is reproducible: two clean builds of `.#wasm-pkg` yield a
 byte-identical artifact. The `wasm-bindgen` library version is locked to the
