@@ -1,11 +1,16 @@
 # rdf-shapes-wasm
 
-Portable **SPARQL 1.1** query + **SHACL Core** validation engine, compiled to
-**WebAssembly**.
+Portable **SPARQL 1.1** query + **SHACL Core** validation engine, written once
+in Rust (`rdf-shapes-core`) and shipped to **multiple targets from one source**:
 
-One Rust-built `.wasm` artifact runs in the browser, on the server (via a wasm
-host), in CI, and as a self-contained release blob — replacing JVM/Apache-Jena
-CLI dependencies for querying and validating RDF transaction graphs.
+- **browser wasm** — a reproducible `wasm-bindgen` bundle (client-side, no
+  server),
+- **native FFI lib** — a C-ABI shared library reused by the Haskell server via
+  `foreign import ccall`,
+- **native CLI** — the self-contained `rdf-shapes` binary.
+
+It replaces JVM/Apache-Jena CLI dependencies for querying and validating RDF
+transaction graphs.
 
 ## Engines
 
@@ -14,11 +19,18 @@ CLI dependencies for querying and validating RDF transaction graphs.
 
 ## Status
 
-Early scaffolding. The roadmap is tracked in the
-[issues](https://github.com/lambdasistemi/rdf-shapes-wasm/issues).
+The engine and the browser playground are **shipped**. `rdf-shapes-core`
+implements full **SPARQL 1.1** (Oxigraph) and **SHACL Core** (rudof) over
+in-memory Turtle, surfaced through three reuse contracts — the browser wasm
+bundle, the native FFI lib, and the native CLI — all built reproducibly by Nix.
+
+- **Docs:** <https://lambdasistemi.github.io/rdf-shapes-wasm/>
+- **Live playground:** <https://lambdasistemi.github.io/rdf-shapes-wasm/app/>
 
 Built and tested entirely with Nix — `nix flake check` / `just ci`. Rust
-toolchain via [crane](https://github.com/ipetkov/crane) + rust-overlay.
+toolchain via [crane](https://github.com/ipetkov/crane) + rust-overlay. Full
+W3C-suite conformance and the Jena differential harness are tracked in the
+[issues](https://github.com/lambdasistemi/rdf-shapes-wasm/issues).
 
 ## Workspace layout
 
@@ -58,6 +70,73 @@ Everything runs through Nix, so the gate is identical locally and in CI.
 The `.wasm` is reproducible: two clean builds of `.#wasm-pkg` yield a
 byte-identical artifact. The `wasm-bindgen` library version is locked to the
 pinned `wasm-bindgen-cli` (see `Cargo.toml` and `flake.nix`).
+
+## Downstream reuse
+
+The two reuse contracts are flake outputs, so a downstream project consumes
+them by adding this repo as a flake input and referencing the package for its
+system. Both are Nix-built and verified consumable.
+
+### Browser wasm (`wasm-pkg`)
+
+The npm-shaped bundle: `rdf_shapes_wasm.js` (the `wasm-bindgen` JS shim) and
+`rdf_shapes_wasm_bg.wasm`, plus TypeScript types and a `package.json`.
+
+```nix
+{
+  inputs.rdf-shapes-wasm.url = "github:lambdasistemi/rdf-shapes-wasm";
+
+  outputs = { self, nixpkgs, rdf-shapes-wasm, ... }:
+    let
+      system = "x86_64-linux";
+      wasm = rdf-shapes-wasm.packages.${system}.wasm-pkg;
+    in {
+      # `${wasm}` contains rdf_shapes_wasm.js + rdf_shapes_wasm_bg.wasm;
+      # copy them into your web bundle at build time.
+    };
+}
+```
+
+```js
+import init, { start, query, validate } from "./rdf_shapes_wasm.js";
+await init();
+start();
+const result = query(graphTtl, sparql);
+const report = validate(dataTtl, shapesTtl);
+```
+
+### Native FFI lib (`ffi-lib`)
+
+The C-ABI shared library — `lib/librdf_shapes_ffi.{so,dylib}` plus the
+cbindgen-generated `include/rdf_shapes.h` — consumed from Haskell via
+`foreign import ccall` (verified on GHC 9.12.3). This is the **server** reuse
+path: the engine runs natively in-process, not on a wasm host.
+
+```nix
+{
+  inputs.rdf-shapes-wasm.url = "github:lambdasistemi/rdf-shapes-wasm";
+
+  outputs = { self, nixpkgs, rdf-shapes-wasm, ... }:
+    let
+      system = "x86_64-linux";
+      ffi = rdf-shapes-wasm.packages.${system}.ffi-lib;
+    in {
+      # `${ffi}/lib/librdf_shapes_ffi.so` links into the Haskell server;
+      # `${ffi}/include/rdf_shapes.h` is the matching C header.
+    };
+}
+```
+
+```haskell
+foreign import ccall "rdf_shapes_query"
+  rdf_shapes_query :: CString -> CString -> IO CString
+```
+
+Each FFI function returns a JSON envelope — `{"ok": <result>}` on success,
+`{"error": "<message>"}` on failure — and the caller frees the returned string
+with `rdf_shapes_string_free`. See
+[`crates/rdf-shapes-ffi/smoke`](crates/rdf-shapes-ffi/smoke) for the GHC 9.12.3
+`ccall` proof.
 
 ## License
 

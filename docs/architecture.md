@@ -13,27 +13,49 @@ thin marshalling layers over it.
 |---|---|---|
 | `rdf-shapes-core` | All business logic. The query and validate engines live here. | Builds **native and** `wasm32-unknown-unknown`. No `wasm-bindgen`, no I/O, no threads, no filesystem, no sockets. |
 | `rdf-shapes-wasm` | `#[wasm_bindgen]` shims. Produces the `.wasm`. | `crate-type = ["cdylib", "rlib"]`. Thin marshalling only — every export delegates to core. |
+| `rdf-shapes-ffi` | `extern "C"` shims. Produces the native C-ABI shared library. | `crate-type = ["cdylib"]`. Thin C-string marshalling; the only crate that opts out of `unsafe_code = "forbid"`, scoped to the FFI pointer handling. |
 | `rdf-shapes-cli` | The native `rdf-shapes` binary. | A thin `clap` front end over core. No logic of its own. |
+
+One source, **three reuse targets**, each a thin shell over the same
+core:
+
+- **browser wasm** — `rdf-shapes-wasm` is finalized into a
+  `wasm-bindgen` web bundle (`.wasm` + JS shim); this is what the
+  client-side [playground](playground.md) runs.
+- **native FFI lib** — `rdf-shapes-ffi` is a C-ABI shared library
+  (`librdf_shapes_ffi.{so,dylib}` + a cbindgen-generated
+  `rdf_shapes.h`). This is the **server** reuse path: the Haskell
+  backend links it and calls the engine in-process via
+  `foreign import ccall`. The server runs the engine **natively, not on
+  a wasm host** — spike [#5](https://github.com/lambdasistemi/rdf-shapes-wasm/issues/5)
+  found `wasmtime-hs` blocked on GHC 9.12.3, so the native FFI lib is
+  the server contract.
+- **native CLI** — `rdf-shapes-cli` is the self-contained `rdf-shapes`
+  binary for CI and scripts.
 
 The `cdylib` half of the wasm crate produces the `.wasm`; the `rlib`
 half keeps it unit-testable natively. Because core has no host
-dependencies, the *exact same* logic runs in the browser, on a server
-wasm host, and in the native CLI. Keeping host concerns out of core is
-what makes "build once, run everywhere" true rather than aspirational.
+dependencies, the *exact same* logic runs in the browser, in the native
+server (over the C-ABI lib), and in the native CLI. Keeping host
+concerns out of core is what makes "build once, run everywhere" true
+rather than aspirational.
 
 ```mermaid
 flowchart TD
     core["rdf-shapes-core<br/>(portable logic:<br/>SPARQL + SHACL)"]
     wasmcrate["rdf-shapes-wasm<br/>(#[wasm_bindgen] cdylib)"]
+    fficrate["rdf-shapes-ffi<br/>(extern C cdylib)"]
     cli["rdf-shapes-cli<br/>(native clap binary)"]
 
     core --> wasmcrate
+    core --> fficrate
     core --> cli
 
-    wasmcrate --> artifact[".wasm + JS shim"]
+    wasmcrate --> wasmart[".wasm + JS shim"]
+    fficrate --> ffiart["librdf_shapes_ffi.so/.dylib<br/>+ rdf_shapes.h"]
 
-    artifact --> browser["Browser<br/>(client-side dashboard)"]
-    artifact --> server["Server<br/>(wasm host)"]
+    wasmart --> browser["Browser<br/>(client-side playground)"]
+    ffiart --> server["Native server<br/>(Haskell via ccall)"]
     cli --> native["Native CLI<br/>(CI, scripts)"]
 ```
 

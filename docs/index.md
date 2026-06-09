@@ -1,9 +1,10 @@
 # rdf-shapes-wasm
 
 A portable **SPARQL 1.1** query engine and **SHACL Core** validation
-engine, compiled to a single **WebAssembly** artifact that runs
-unchanged in the browser, on a server (via a wasm host), in CI, and as
-a self-contained release blob.
+engine, written once in Rust and shipped to **multiple targets from one
+source**: a browser WebAssembly bundle, a native C-ABI FFI library (the
+server reuse path, called from Haskell via `foreign import ccall`), and
+a self-contained native CLI.
 
 This site documents the project: its motivations, the concepts it rests
 on, how it is built, how to use it today, and the full Rust API
