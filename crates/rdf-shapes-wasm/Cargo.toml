@@ -1,0 +1,19 @@
+[package]
+name = "rdf-shapes-wasm"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Thin wasm-bindgen shell over rdf-shapes-core."
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rdf-shapes-core = { path = "../rdf-shapes-core", version = "0.1.0" }
+wasm-bindgen.workspace = true
+console_error_panic_hook.workspace = true
+
+[lints]
+workspace = true
