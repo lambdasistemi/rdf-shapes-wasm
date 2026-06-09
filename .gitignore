@@ -1,0 +1,15 @@
+# Rust build output
+/target
+**/*.rs.bk
+
+# Nix
+result
+result-*
+
+# wasm-bindgen / npm output
+/pkg
+/dist
+node_modules/
+
+# LLM investigation notes (local only)
+.llm/
