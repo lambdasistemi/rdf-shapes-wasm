@@ -1,0 +1,7 @@
+# Per-target build flags. Deliberately NO default `target` here: that
+# would force the native CLI to cross-compile to wasm. This file only
+# carries the wasm rustflag, mirroring nix/crane.nix's wasmArgs so a
+# bare `cargo check --target wasm32-unknown-unknown` resolves getrandom
+# the same way the Nix wasm build does.
+[target.wasm32-unknown-unknown]
+rustflags = ['--cfg', 'getrandom_backend="wasm_js"']
