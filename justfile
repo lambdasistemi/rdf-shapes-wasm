@@ -27,6 +27,10 @@ clippy:
 wasm:
     nix run .#wasm
 
+# Build the native C-ABI shared library + header.
+ffi:
+    nix run .#ffi
+
 # Supply-chain audit (cargo-deny).
 deny:
     nix run .#deny

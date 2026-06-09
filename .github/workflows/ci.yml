@@ -32,6 +32,7 @@ jobs:
           .#cli
           .#lib
           .#wasm-pkg
+          .#ffi-lib
           .#checks.x86_64-linux.clippy
           .#checks.x86_64-linux.nextest
           .#checks.x86_64-linux.fmt
@@ -101,3 +102,19 @@ jobs:
       - name: Build reproducible wasm bundle
         working-directory: checkout
         run: nix build --quiet .#wasm-pkg
+
+  ffi-build:
+    needs: build-gate
+    runs-on: nixos
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+          path: checkout
+      - uses: cachix/cachix-action@v17
+        with:
+          name: paolino
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Build native C-ABI shared library
+        working-directory: checkout
+        run: nix build --quiet .#ffi-lib

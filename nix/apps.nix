@@ -26,6 +26,8 @@ in
 {
   build = mkApp "build" "nix build .#cli .#lib";
 
+  ffi = mkApp "ffi" "nix build .#ffi-lib";
+
   test = mkApp "test" "nix build .#checks.${system}.nextest";
 
   clippy = mkApp "clippy" "nix build .#checks.${system}.clippy";
@@ -38,7 +40,7 @@ in
 
   ci = mkApp "ci" ''
     nix build \
-      .#cli .#lib .#wasm-pkg \
+      .#cli .#lib .#wasm-pkg .#ffi-lib \
       ${checkTargets}
   '';
 }
