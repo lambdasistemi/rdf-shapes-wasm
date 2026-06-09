@@ -6,20 +6,26 @@
 //! filesystem, or socket access, so it stays portable across every
 //! target.
 //!
-//! The façade exposes full SPARQL 1.1 query via Oxigraph's in-memory
-//! store ([`query`], returning typed [`QueryResults`]); SHACL Core
-//! validation via rudof lands alongside it. Every fallible path
-//! returns a [`ShapesError`]; nothing panics.
+//! The façade exposes two capabilities over in-memory Turtle:
+//!
+//! - [`query`] — full SPARQL 1.1 query via Oxigraph's in-memory store,
+//!   returning typed [`QueryResults`].
+//! - [`validate`] — SHACL Core validation via rudof, returning a
+//!   structured [`ValidationReport`].
+//!
+//! Every fallible path returns a [`ShapesError`]; nothing panics.
 
 mod error;
 mod query;
 mod report;
 mod results;
+mod validate;
 
 pub use error::ShapesError;
 pub use query::query;
 pub use report::{ValidationReport, Violation};
 pub use results::QueryResults;
+pub use validate::validate;
 
 /// Returns the crate version, taken from the Cargo package metadata.
 ///

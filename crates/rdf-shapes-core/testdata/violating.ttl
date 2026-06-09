@@ -1,0 +1,17 @@
+@prefix atx: <https://lambdasistemi.github.io/amaru-treasury-tx/vocab/history#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# A malformed HistoryEntry that breaks three SHACL Core constraints:
+#   1. atx:slot is a string, but the shape requires xsd:integer
+#      -> sh:datatype violation
+#   2. atx:tx is a literal, but the shape requires sh:nodeKind sh:IRI
+#      -> sh:nodeKind violation
+#   3. atx:direction is missing entirely (shape requires minCount 1)
+#      -> sh:minCount violation
+# Should NOT conform.
+atx:entry-bad a atx:HistoryEntry ;
+  atx:tx "not-an-iri"^^xsd:string ;
+  atx:txid "def456"^^xsd:string ;
+  atx:slot "not-a-number"^^xsd:string ;
+  atx:scope "operations"^^xsd:string ;
+  atx:role "treasurer"^^xsd:string .

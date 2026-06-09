@@ -35,12 +35,22 @@ enum Command {
         #[arg(long)]
         query: PathBuf,
     },
+    /// Validate a Turtle data graph against SHACL Core shapes.
+    Validate {
+        /// Path to the RDF data graph (Turtle).
+        #[arg(long)]
+        data: PathBuf,
+        /// Path to the SHACL shapes graph (Turtle).
+        #[arg(long)]
+        shapes: PathBuf,
+    },
 }
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
         Command::Query { graph, query } => run_query(&graph, &query),
+        Command::Validate { data, shapes } => run_validate(&data, &shapes),
     }
 }
 
@@ -56,6 +66,22 @@ fn run_query(graph: &PathBuf, query: &PathBuf) -> Result<()> {
         .context("SPARQL query failed")?;
     let json = serde_json::to_string_pretty(&results)
         .context("serializing results")?;
+    println!("{json}");
+    Ok(())
+}
+
+/// Loads the data and shapes files, validates, and prints the report
+/// as pretty JSON.
+fn run_validate(data: &PathBuf, shapes: &PathBuf) -> Result<()> {
+    let data_ttl = fs::read_to_string(data)
+        .with_context(|| format!("reading data {}", data.display()))?;
+    let shapes_ttl = fs::read_to_string(shapes)
+        .with_context(|| format!("reading shapes {}", shapes.display()))?;
+
+    let report = rdf_shapes_core::validate(&data_ttl, &shapes_ttl)
+        .context("SHACL validation failed")?;
+    let json = serde_json::to_string_pretty(&report)
+        .context("serializing report")?;
     println!("{json}");
     Ok(())
 }

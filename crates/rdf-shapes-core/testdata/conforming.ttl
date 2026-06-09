@@ -1,0 +1,12 @@
+@prefix atx: <https://lambdasistemi.github.io/amaru-treasury-tx/vocab/history#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# A well-formed HistoryEntry: every required property present, correct
+# datatypes, tx is an IRI. Should CONFORM to HistoryEntryShape.
+atx:entry-1 a atx:HistoryEntry ;
+  atx:tx <https://lambdasistemi.github.io/amaru-treasury-tx/tx/abc123> ;
+  atx:txid "abc123"^^xsd:string ;
+  atx:slot 12345678 ;
+  atx:scope "operations"^^xsd:string ;
+  atx:role "treasurer"^^xsd:string ;
+  atx:direction "outgoing"^^xsd:string .
