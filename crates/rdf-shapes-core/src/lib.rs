@@ -6,20 +6,18 @@
 //! filesystem, or socket access, so it stays portable across every
 //! target.
 //!
-//! The façade exposes two capabilities over in-memory Turtle:
-//!
-//! - [`query`] — full SPARQL 1.1 query via Oxigraph's in-memory store,
-//!   returning typed [`QueryResults`].
-//! - [`validate`] — SHACL Core validation via rudof, returning a
-//!   structured [`ValidationReport`].
-//!
-//! Every fallible path returns a [`ShapesError`]; nothing panics.
+//! The façade exposes full SPARQL 1.1 query via Oxigraph's in-memory
+//! store ([`query`], returning typed [`QueryResults`]); SHACL Core
+//! validation via rudof lands alongside it. Every fallible path
+//! returns a [`ShapesError`]; nothing panics.
 
 mod error;
+mod query;
 mod report;
 mod results;
 
 pub use error::ShapesError;
+pub use query::query;
 pub use report::{ValidationReport, Violation};
 pub use results::QueryResults;
 
@@ -32,27 +30,12 @@ pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }
 
-/// Echoes `input` back as a `pong:`-prefixed greeting.
-///
-/// This is the trivial round-trip used to prove that a value flows
-/// from a caller, through the portable core, and back out — across
-/// both the native CLI and the wasm shim.
-#[must_use]
-pub fn ping(input: &str) -> String {
-    format!("pong: {input}")
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{ping, version};
+    use super::version;
 
     #[test]
     fn version_matches_cargo_metadata() {
         assert_eq!(version(), env!("CARGO_PKG_VERSION"));
-    }
-
-    #[test]
-    fn ping_prefixes_with_pong() {
-        assert_eq!(ping("hello"), "pong: hello");
     }
 }
