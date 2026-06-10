@@ -1,0 +1,14 @@
+@prefix atx: <https://lambdasistemi.github.io/amaru-treasury-tx/vocab/history#> .
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+@prefix treasury: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/treasury#> .
+
+atx:entry-bad a atx:HistoryEntry ;
+  atx:tx "not-an-iri" ;
+  atx:txid "def456" ;
+  atx:slot "not-a-number" ;
+  atx:scope "operations" ;
+  atx:role "treasurer" .
+
+<urn:entity:bad> a cardano:Entity ;
+  atx:scope "operations" ;
+  treasury:role "treasurer" .

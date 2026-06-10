@@ -1,0 +1,5 @@
+PREFIX cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#>
+
+ASK {
+  ?tx a cardano:Transaction .
+}

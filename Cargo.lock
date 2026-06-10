@@ -1609,6 +1609,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "rdf-shapes-conformance"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "oxrdf",
+ "oxrdfio",
+ "rdf-shapes-core",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "rdf-shapes-core"
 version = "0.1.0"
 dependencies = [

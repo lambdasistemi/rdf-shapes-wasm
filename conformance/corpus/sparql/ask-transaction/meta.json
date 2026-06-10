@@ -1,0 +1,5 @@
+{
+  "kind": "sparql",
+  "form": "ask",
+  "description": "Plain SPARQL ASK coverage."
+}

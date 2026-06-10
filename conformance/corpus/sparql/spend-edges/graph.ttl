@@ -1,0 +1,17 @@
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+
+<urn:tx:producer> a cardano:Transaction ;
+  cardano:hasTxId <urn:txid:producer> ;
+  cardano:hasOutput <urn:tx:producer#0>, <urn:tx:producer#1> .
+<urn:txid:producer> cardano:bytesHex "aa01" .
+<urn:tx:producer#0> cardano:hasIndex 0 ; cardano:lovelace 2000000 .
+<urn:tx:producer#1> cardano:hasIndex 1 ; cardano:lovelace 5000000 .
+
+<urn:tx:consumer> a cardano:Transaction ;
+  cardano:hasTxId <urn:txid:consumer> ;
+  cardano:hasInput <urn:input:0> .
+<urn:txid:consumer> cardano:bytesHex "bb02" .
+<urn:input:0> cardano:fromTxOutRef <urn:ref:producer#1> .
+<urn:ref:producer#1> cardano:hasTxId <urn:ref-txid:producer> ;
+  cardano:hasIndex 1 .
+<urn:ref-txid:producer> cardano:bytesHex "aa01" .

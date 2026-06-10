@@ -1,0 +1,6 @@
+{
+  "kind": "sparql",
+  "form": "select",
+  "ordered": true,
+  "description": "Treasury spend-edges: joins a consuming input back to a producer output."
+}

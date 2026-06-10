@@ -1,0 +1,6 @@
+{
+  "kind": "sparql",
+  "form": "select",
+  "ordered": false,
+  "description": "Treasury entity-occurrences: aggregate identifier counts per cardano:Entity."
+}

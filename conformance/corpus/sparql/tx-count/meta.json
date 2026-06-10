@@ -1,0 +1,6 @@
+{
+  "kind": "sparql",
+  "form": "select",
+  "ordered": false,
+  "description": "Treasury tx-count: COUNT(DISTINCT ?tx) over cardano:Transaction nodes."
+}

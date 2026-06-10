@@ -1,0 +1,3 @@
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+
+<urn:tx:ask> a cardano:Transaction .

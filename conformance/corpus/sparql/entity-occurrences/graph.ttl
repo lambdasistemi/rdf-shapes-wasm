@@ -1,0 +1,13 @@
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<urn:entity:alice> a cardano:Entity ;
+  rdfs:label "Alice Treasury Key" ;
+  cardano:hasIdentifier <urn:key:alice-1>, <urn:key:alice-2> .
+
+<urn:entity:bob> a cardano:Entity ;
+  rdfs:label "Bob Treasury Key" ;
+  cardano:hasIdentifier <urn:key:bob-1> .
+
+<urn:not-entity> rdfs:label "ignored" ;
+  cardano:hasIdentifier <urn:key:ignored> .

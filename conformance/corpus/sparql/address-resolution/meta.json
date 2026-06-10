@@ -1,0 +1,6 @@
+{
+  "kind": "sparql",
+  "form": "select",
+  "ordered": true,
+  "description": "Treasury address-resolution: coalesces address, UTxO ref, or key hash handles."
+}

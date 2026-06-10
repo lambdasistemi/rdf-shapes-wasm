@@ -33,6 +33,17 @@ let
     }
   );
 
+  # Native-only conformance and Jena differential harness. This is test
+  # infrastructure and is intentionally not part of the wasm build.
+  conformance = craneLib.buildPackage (
+    commonArgs
+    // {
+      inherit cargoArtifacts;
+      pname = "rdf-shapes-conformance";
+      cargoExtraArgs = "-p rdf-shapes-conformance";
+    }
+  );
+
   # The raw cdylib compiled to wasm32, before wasm-bindgen processing.
   wasmCrate = craneLib.buildPackage (
     wasmArgs
@@ -148,5 +159,5 @@ let
   };
 in
 {
-  inherit cli lib wasmCrate wasm-pkg ffi-lib;
+  inherit cli lib conformance wasmCrate wasm-pkg ffi-lib;
 }

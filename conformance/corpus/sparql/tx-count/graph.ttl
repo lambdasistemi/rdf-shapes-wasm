@@ -1,0 +1,10 @@
+# Sample graph for the treasury `tx-count` named query.
+#
+# Three cardano:Transaction nodes plus a non-transaction Output node
+# that must NOT be counted. The query projects COUNT(DISTINCT ?tx).
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+
+<urn:tx:aaaa> a cardano:Transaction .
+<urn:tx:bbbb> a cardano:Transaction .
+<urn:tx:cccc> a cardano:Transaction .
+<urn:out:1>   a cardano:Output .

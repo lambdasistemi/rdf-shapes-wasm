@@ -1,0 +1,23 @@
+@prefix atx: <https://lambdasistemi.github.io/amaru-treasury-tx/vocab/history#> .
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix treasury: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/treasury#> .
+
+<urn:entity:address> a cardano:Entity ;
+  rdfs:label "Payment address" ;
+  atx:scope "ops" ;
+  treasury:role "treasurer" ;
+  cardano:bech32 "addr_test1qpayment" .
+
+<urn:entity:utxo> a cardano:Entity ;
+  rdfs:label "Scope owner UTxO" ;
+  atx:scope "ops" ;
+  treasury:role "owner" ;
+  cardano:fromTxOutRef "aa01#0" .
+
+<urn:entity:key> a cardano:Entity ;
+  rdfs:label "Signing key" ;
+  atx:scope "audit" ;
+  treasury:role "reviewer" ;
+  cardano:hasIdentifier <urn:key:reviewer> .
+<urn:key:reviewer> cardano:bytesHex "deadbeef" .

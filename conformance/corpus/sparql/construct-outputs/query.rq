@@ -1,0 +1,10 @@
+PREFIX cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#>
+
+CONSTRUCT {
+  ?tx cardano:hasOutput ?out .
+  ?out cardano:lovelace ?lovelace .
+}
+WHERE {
+  ?tx cardano:hasOutput ?out .
+  ?out cardano:lovelace ?lovelace .
+}

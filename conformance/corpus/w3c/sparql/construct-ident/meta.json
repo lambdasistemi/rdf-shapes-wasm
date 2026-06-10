@@ -1,0 +1,5 @@
+{
+  "kind": "sparql",
+  "form": "construct",
+  "source": "w3c/rdf-tests sparql/sparql10/construct/query-ident at f25dbc092c654d792974848e81bb519d7328f0e8; expected.nt normalized from official result-ident.ttl"
+}
