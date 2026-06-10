@@ -1,0 +1,20 @@
+[package]
+name = "rdf-shapes-conformance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+oxrdf = "0.3.3"
+oxrdfio = "0.2.5"
+rdf-shapes-core = { path = "../rdf-shapes-core", version = "0.1.0" }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

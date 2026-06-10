@@ -1,0 +1,4 @@
+{
+  "kind": "shacl",
+  "description": "Copied indexed-tx-body shape over conforming transaction linkage."
+}

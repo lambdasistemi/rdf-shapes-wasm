@@ -1,0 +1,5 @@
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+
+<urn:tx:construct> a cardano:Transaction ;
+  cardano:hasOutput <urn:tx:construct#0> .
+<urn:tx:construct#0> cardano:lovelace 7 .

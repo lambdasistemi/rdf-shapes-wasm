@@ -1,0 +1,19 @@
+@prefix atx: <https://lambdasistemi.github.io/amaru-treasury-tx/vocab/history#> .
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix treasury: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/treasury#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+atx:entry-1 a atx:HistoryEntry ;
+  atx:tx <urn:tx:abc123> ;
+  atx:txid "abc123" ;
+  atx:slot 12345678 ;
+  atx:scope "operations" ;
+  atx:role "treasurer" ;
+  atx:direction "outgoing" .
+
+<urn:entity:treasurer> a cardano:Entity ;
+  rdfs:label "Treasurer" ;
+  atx:scope "operations" ;
+  treasury:role "treasurer" ;
+  cardano:bech32 "addr_test1qtreasurer" .

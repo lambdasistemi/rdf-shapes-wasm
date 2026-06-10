@@ -35,6 +35,10 @@ ffi:
 deny:
     nix run .#deny
 
+# Run the conformance and Jena differential harness.
+conformance:
+    nix run .#conformance
+
 # The single gate: every package + every check, identical to CI.
 ci:
     nix run .#ci

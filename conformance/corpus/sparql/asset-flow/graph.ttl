@@ -1,0 +1,48 @@
+# Sample graph for the treasury `asset-flow` named query.
+#
+# Two indexed transactions. The producer (tx P) has two outputs: one
+# carrying ada (lovelace) and one carrying a native asset via the
+# cardano:hasAssetValue rdf:List. The consumer (tx C) has a single ada
+# output. The query emits one row per output asset (ada via the first
+# UNION branch, native assets via the second), so this graph exercises
+# both branches, the OPTIONAL bech32 / COALESCE destination, and the
+# `?quantity != 0` filter (a zero-lovelace output is included that must
+# be dropped). Blank-node-free for stable comparison.
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+# --- transaction P (producer) ---------------------------------------
+<urn:tx:P> a cardano:Transaction ;
+    cardano:hasTxId <urn:txid:P> ;
+    cardano:hasOutput <urn:tx:P#0>, <urn:tx:P#1> .
+<urn:txid:P> cardano:bytesHex "0aP" .
+
+# output 0: 1_000_000 lovelace to addr A (has a bech32 handle)
+<urn:tx:P#0> cardano:hasIndex 0 ;
+    cardano:atAddress <urn:addr:A> ;
+    cardano:lovelace 1000000 .
+<urn:addr:A> cardano:bech32 "addr1qa" .
+
+# output 1: a native asset (quantity 42) to addr B (no bech32 -> STR)
+<urn:tx:P#1> cardano:hasIndex 1 ;
+    cardano:atAddress <urn:addr:B> ;
+    cardano:hasAssetValue ( <urn:assetvalue:X> ) .
+<urn:assetvalue:X> cardano:hasIdentifier <urn:asset:X> ;
+    cardano:quantity 42 .
+<urn:asset:X> cardano:bytesHex "beef" .
+
+# --- transaction C (consumer) ---------------------------------------
+<urn:tx:C> a cardano:Transaction ;
+    cardano:hasTxId <urn:txid:C> ;
+    cardano:hasOutput <urn:tx:C#0>, <urn:tx:C#1> .
+<urn:txid:C> cardano:bytesHex "0aC" .
+
+# output 0: 2_500_000 lovelace to addr A
+<urn:tx:C#0> cardano:hasIndex 0 ;
+    cardano:atAddress <urn:addr:A> ;
+    cardano:lovelace 2500000 .
+
+# output 1: a zero-lovelace output -> filtered out by `?quantity != 0`
+<urn:tx:C#1> cardano:hasIndex 1 ;
+    cardano:atAddress <urn:addr:B> ;
+    cardano:lovelace 0 .

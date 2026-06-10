@@ -1,0 +1,6 @@
+{
+  "kind": "sparql",
+  "form": "select",
+  "ordered": true,
+  "description": "Treasury history-entries: ordered metadata rows for history entries."
+}

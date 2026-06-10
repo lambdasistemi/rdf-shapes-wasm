@@ -1,0 +1,15 @@
+@prefix atx: <https://lambdasistemi.github.io/amaru-treasury-tx/vocab/history#> .
+
+atx:entry-2 a atx:HistoryEntry ;
+  atx:slot 200 ;
+  atx:txid "tx-b" ;
+  atx:scope "ops" ;
+  atx:role "reviewer" ;
+  atx:direction "incoming" .
+
+atx:entry-1 a atx:HistoryEntry ;
+  atx:slot 100 ;
+  atx:txid "tx-a" ;
+  atx:scope "ops" ;
+  atx:role "treasurer" ;
+  atx:direction "outgoing" .

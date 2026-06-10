@@ -38,6 +38,7 @@ jobs:
           .#checks.x86_64-linux.fmt
           .#checks.x86_64-linux.deny
           .#checks.x86_64-linux.doc
+          .#checks.x86_64-linux.conformance
 
   test:
     needs: build-gate
@@ -118,3 +119,19 @@ jobs:
       - name: Build native C-ABI shared library
         working-directory: checkout
         run: nix build --quiet .#ffi-lib
+
+  conformance:
+    needs: build-gate
+    runs-on: nixos
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          clean: false
+          path: checkout
+      - uses: cachix/cachix-action@v17
+        with:
+          name: paolino
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      - name: Conformance and Jena differential
+        working-directory: checkout
+        run: nix build --quiet .#checks.x86_64-linux.conformance

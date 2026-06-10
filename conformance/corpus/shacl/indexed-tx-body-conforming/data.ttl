@@ -1,0 +1,7 @@
+@prefix atx: <https://lambdasistemi.github.io/amaru-treasury-tx/vocab/history#> .
+@prefix cardano: <https://lambdasistemi.github.io/cardano-ledger-rdf/vocab/cardano#> .
+
+atx:entry-1 a atx:HistoryEntry ;
+  atx:tx <urn:tx:abc123> .
+
+<urn:tx:abc123> a cardano:Transaction .

@@ -1,0 +1,4 @@
+{
+  "kind": "shacl",
+  "description": "Copied indexed-tx-body shape over a non-Transaction tx target."
+}

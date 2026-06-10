@@ -28,9 +28,9 @@ bundle, the native FFI lib, and the native CLI — all built reproducibly by Nix
 - **Live playground:** <https://lambdasistemi.github.io/rdf-shapes-wasm/app/>
 
 Built and tested entirely with Nix — `nix flake check` / `just ci`. Rust
-toolchain via [crane](https://github.com/ipetkov/crane) + rust-overlay. Full
-W3C-suite conformance and the Jena differential harness are tracked in the
-[issues](https://github.com/lambdasistemi/rdf-shapes-wasm/issues).
+toolchain via [crane](https://github.com/ipetkov/crane) + rust-overlay. W3C
+conformance and the Jena differential harness are wired into the gate; see
+[`docs/conformance.md`](docs/conformance.md).
 
 ## Workspace layout
 
@@ -62,6 +62,7 @@ Everything runs through Nix, so the gate is identical locally and in CI.
 |---|---|
 | `nix flake check` | The single gate: clippy (`-D warnings`), rustfmt, nextest, cargo-deny, rustdoc (`-D warnings`). |
 | `just ci` | Same gate via `nix run .#ci` (builds every package + every check). |
+| `just conformance` | Run the Apache Jena differential and curated W3C conformance harness. |
 | `nix build .#cli` | Native CLI; run `./result/bin/rdf-shapes --help`. |
 | `nix build .#wasm-pkg` | Reproducible, npm-shaped wasm bundle (pinned `wasm-bindgen-cli` + `wasm-opt -Oz`). |
 | `nix build .#ffi-lib` | Native C-ABI shared library: `lib/librdf_shapes_ffi.{so,dylib}` + `include/rdf_shapes.h` (cbindgen-generated). |

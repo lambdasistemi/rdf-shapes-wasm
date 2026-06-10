@@ -1,0 +1,6 @@
+{
+  "kind": "sparql",
+  "form": "select",
+  "ordered": false,
+  "source": "w3c/rdf-tests sparql/sparql11/aggregates/agg-empty-group-count-2 at f25dbc092c654d792974848e81bb519d7328f0e8"
+}

@@ -1,0 +1,6 @@
+{
+  "kind": "sparql",
+  "form": "select",
+  "ordered": true,
+  "description": "Treasury asset-flow: per-output asset rows (ada + native), ORDER BY makes this an ordered comparison."
+}

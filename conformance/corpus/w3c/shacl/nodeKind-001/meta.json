@@ -1,0 +1,4 @@
+{
+  "kind": "shacl",
+  "source": "w3c/data-shapes shacl12-test-suite/tests/core/node/nodeKind-001.ttl at b6e73695d6196f33d7ce3ba47094a10fbc298e65"
+}

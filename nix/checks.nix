@@ -2,7 +2,11 @@
 # sandboxed crane derivation that runs the underlying tool, so
 # `nix flake check` actually exercises clippy, rustfmt, the test
 # suite, cargo-deny, and rustdoc — not just "a script was written".
-{ pkgs, craneEnv }:
+{ pkgs
+, craneEnv
+, conformance
+, src
+}:
 let
   inherit (craneEnv) craneLib commonArgs cargoArtifacts;
 in
@@ -39,4 +43,9 @@ in
       env.RUSTDOCFLAGS = "--deny warnings";
     }
   );
+
+  # Corpus-driven differential and expected-result conformance check.
+  conformance = import ./conformance.nix {
+    inherit pkgs conformance src;
+  };
 }

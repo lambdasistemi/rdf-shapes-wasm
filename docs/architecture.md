@@ -136,4 +136,5 @@ CI. It runs, as real sandboxed derivations:
 - `cargo doc` with `-D warnings`.
 
 A change is not "done" until that command is green; "it compiles" is not
-sufficient. See [Usage](usage.md) for the day-to-day commands.
+sufficient. See [Conformance](conformance.md) for the Jena/W3C trust model and
+[Usage](usage.md) for the day-to-day commands.

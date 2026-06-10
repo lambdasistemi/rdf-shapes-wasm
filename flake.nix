@@ -61,7 +61,11 @@
           inherit pkgs craneEnv wasmBindgenCli;
         };
 
-        checks = import ./nix/checks.nix { inherit pkgs craneEnv; };
+        checks = import ./nix/checks.nix {
+          inherit pkgs craneEnv;
+          conformance = packages.conformance;
+          src = ./.;
+        };
 
         apps = import ./nix/apps.nix { inherit pkgs; };
 
@@ -80,7 +84,7 @@
       {
         packages = {
           default = packages.cli;
-          inherit (packages) cli lib wasm-pkg ffi-lib;
+          inherit (packages) cli lib conformance wasm-pkg ffi-lib;
           inherit api-docs;
           playground = playground.bundle;
           release-artifacts = import ./nix/release.nix {
