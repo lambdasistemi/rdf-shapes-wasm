@@ -1,34 +1,25 @@
 name: Release
 
+# Tag-driven releases. To cut a release: `just release X.Y.Z`, open + merge
+# the resulting PR, then `git tag vX.Y.Z && git push origin vX.Y.Z`. Pushing
+# the tag runs the jobs below. (No release-please: the repo is a virtual cargo
+# workspace with an inherited version, which release-please can't manage
+# without per-crate de-inheriting; the tag flow is simpler and reproducible.)
 on:
   push:
-    branches: [main]
     tags: ["v*"]
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  # Maintains the release PR and cuts tags from Conventional Commits on
-  # main. Only runs on branch pushes, never on the tag it creates.
-  release-please:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      # Manifest mode: driven by release-please-config.json +
-      # .release-please-manifest.json (default file names). No inline
-      # release-type, so the config files are authoritative.
-      - uses: googleapis/release-please-action@v4
-
-  # Builds the Nix-owned, reproducible release bundle on a tag and
-  # uploads it to the corresponding GitHub release.
+  # Builds the Nix-owned, reproducible release bundle on a tag and uploads it
+  # to the corresponding GitHub release.
   artifacts:
-    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: nixos
     steps:
       - uses: actions/checkout@v6
@@ -62,14 +53,13 @@ jobs:
                  --generate-notes
           "${gh[@]}" release upload "$TAG" "$OUT"/* --clobber
 
-  # Publishes the npm-shaped wasm package. Gated on a tag and on the
-  # npm token being present so it is a no-op until publishing is set up.
+  # Publishes the npm-shaped wasm package. Gated on the npm token being present
+  # so it is a no-op until publishing is set up.
   npm-publish:
-    if: startsWith(github.ref, 'refs/tags/v')
     needs: artifacts
     runs-on: nixos
-    # The `secrets` context is NOT allowed in an `if`; capture presence in
-    # a job-level env (which CAN read secrets) and gate the step on that.
+    # The `secrets` context is NOT allowed in an `if`; capture presence in a
+    # job-level env (which CAN read secrets) and gate the step on that.
     env:
       HAS_NPM_TOKEN: ${{ secrets.NPM_TOKEN != '' }}
     steps:

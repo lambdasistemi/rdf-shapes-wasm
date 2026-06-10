@@ -138,6 +138,24 @@ with `rdf_shapes_string_free`. See
 [`crates/rdf-shapes-ffi/smoke`](crates/rdf-shapes-ffi/smoke) for the GHC 9.12.3
 `ccall` proof.
 
+## Releasing
+
+Releases are **tag-driven** and reproducible — no release-please (the repo is a
+virtual cargo workspace with an inherited version, which release-please can't
+manage cleanly). To cut `vX.Y.Z`:
+
+```bash
+just release X.Y.Z          # bumps [workspace.package].version + Cargo.lock,
+                            # stamps a CHANGELOG section, commits chore(release)
+# edit the CHANGELOG entry, open + merge a PR for that commit, then:
+git tag vX.Y.Z && git push origin vX.Y.Z
+```
+
+Pushing the `v*` tag runs `.github/workflows/release.yml`, which builds
+`.#release-artifacts` with Nix and publishes the GitHub release (CLI tarball,
+npm `.tgz`, bare `.wasm`, native FFI lib tarball, `SHA256SUMS`). The npm publish
+step is a no-op until an `NPM_TOKEN` secret is set.
+
 ## License
 
 [Apache-2.0](./LICENSE)
