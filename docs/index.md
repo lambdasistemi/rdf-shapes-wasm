@@ -65,10 +65,11 @@ parity against — never as a runtime dependency of the shipped artifact.
 
 !!! note "Status"
     The evaluation surface is live: `query` (full SPARQL 1.1) and
-    `validate` (SHACL Core) are exposed through the native CLI and the
-    wasm bundle. See [Usage](usage.md). Full W3C-suite conformance and
-    the Jena differential harness are tracked in the
-    [issues](https://github.com/lambdasistemi/rdf-shapes-wasm/issues).
+    `validate` (SHACL Core) are exposed through the native CLI, the
+    wasm bundle, and the native FFI library. See [Usage](usage.md).
+    Correctness is established by curated W3C suites and the Apache
+    Jena differential harness, both wired into the Nix gate — see
+    [Conformance](conformance.md).
 
 ## Try it now
 
@@ -83,7 +84,9 @@ install, no server. It is the client-side dashboard above, live.
   artifact, briefly.
 - [Architecture](architecture.md) — the pure-core / thin-shells crate
   split, the Nix build, and the trust model.
-- [Usage](usage.md) — building and running the CLI and the wasm bundle
-  today.
+- [Conformance](conformance.md) — the W3C suites and the Apache Jena
+  differential harness that license replacing Jena.
+- [Usage](usage.md) — building and running the CLI, the wasm bundle,
+  and the FFI library today.
 - [API Reference](api-reference.md) — the full rustdoc, rendered inside
   this site.
