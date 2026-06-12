@@ -6,7 +6,7 @@ correctness is established.
 ## Pure core, thin shells
 
 The workspace follows a strict **pure-core / thin-shells** discipline.
-All business logic lives in one portable crate; the other two crates are
+All business logic lives in one portable crate; the shell crates are
 thin marshalling layers over it.
 
 | Crate | Role | Constraints |
@@ -15,6 +15,7 @@ thin marshalling layers over it.
 | `rdf-shapes-wasm` | `#[wasm_bindgen]` shims. Produces the `.wasm`. | `crate-type = ["cdylib", "rlib"]`. Thin marshalling only — every export delegates to core. |
 | `rdf-shapes-ffi` | `extern "C"` shims. Produces the native C-ABI shared library. | `crate-type = ["cdylib"]`. Thin C-string marshalling; the only crate that opts out of `unsafe_code = "forbid"`, scoped to the FFI pointer handling. |
 | `rdf-shapes-cli` | The native `rdf-shapes` binary. | A thin `clap` front end over core. No logic of its own. |
+| `rdf-shapes-conformance` | The conformance and Jena differential harness. | Native-only test infrastructure — runs the committed corpus through the core and through Apache Jena / committed expected results. Not a shipped artifact. |
 
 One source, **three reuse targets**, each a thin shell over the same
 core:
@@ -47,9 +48,12 @@ flowchart TD
     fficrate["rdf-shapes-ffi<br/>(extern C cdylib)"]
     cli["rdf-shapes-cli<br/>(native clap binary)"]
 
+    conf["rdf-shapes-conformance<br/>(W3C + Jena differential harness)"]
+
     core --> wasmcrate
     core --> fficrate
     core --> cli
+    core --> conf
 
     wasmcrate --> wasmart[".wasm + JS shim"]
     fficrate --> ffiart["librdf_shapes_ffi.so/.dylib<br/>+ rdf_shapes.h"]
@@ -57,6 +61,7 @@ flowchart TD
     wasmart --> browser["Browser<br/>(client-side playground)"]
     ffiart --> server["Native server<br/>(Haskell via ccall)"]
     cli --> native["Native CLI<br/>(CI, scripts)"]
+    conf --> gate["Conformance check<br/>(nix flake check)"]
 ```
 
 ## The Nix build
@@ -126,14 +131,21 @@ differential parity *are* the arbiter of correctness.
 
 ## The single gate
 
-`nix flake check` is the one source of truth, equal to `just ci` and to
-CI. It runs, as real sandboxed derivations:
+`nix flake check` is the one source of truth. It runs, as real
+sandboxed derivations:
 
 - `clippy` with `-D warnings`,
 - `rustfmt` in check mode,
 - `nextest` (the unit test suite),
 - `cargo-deny` (licenses, advisories, bans, sources),
-- `cargo doc` with `-D warnings`.
+- `cargo doc` with `-D warnings`,
+- the conformance harness over the committed corpus (the Jena
+  differential plus the curated W3C cases),
+- the playground check (`purs-tidy` + `spago build` + `spago test`).
+
+`just ci` (`nix run .#ci`) and the CI workflow build the same packages
+and the Rust checks above; the playground check runs under
+`nix flake check`.
 
 A change is not "done" until that command is green; "it compiles" is not
 sufficient. See [Conformance](conformance.md) for the Jena/W3C trust model and

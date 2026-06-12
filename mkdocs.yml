@@ -55,8 +55,8 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Concepts: concepts.md
-  - Architecture: architecture.md
-  - Conformance: conformance.md
   - Usage: usage.md
   - Playground: playground.md
+  - Architecture: architecture.md
+  - Conformance: conformance.md
   - API Reference: api-reference.md

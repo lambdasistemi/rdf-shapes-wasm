@@ -231,22 +231,25 @@ for full copy-paste flake snippets for both outputs.
 
 | Command | What it does |
 |---|---|
-| `nix flake check` | The single gate: clippy (`-D warnings`), rustfmt, nextest, cargo-deny, rustdoc (`-D warnings`). |
-| `just ci` | The same gate via `nix run .#ci`. |
+| `nix flake check` | The single gate: clippy (`-D warnings`), rustfmt, nextest, cargo-deny, rustdoc (`-D warnings`), the conformance harness, and the playground check. |
+| `just ci` | The CI gate via `nix run .#ci` (every package + the clippy/fmt/nextest/deny/doc/conformance checks). |
 | `just build` | Native CLI + core library. |
 | `just test` | Unit tests (cargo-nextest). |
 | `just clippy` | Clippy with warnings denied. |
 | `just fmt-check` | rustfmt in check mode. |
 | `just wasm` | The reproducible wasm bundle. |
+| `just ffi` | The native C-ABI shared library + header. |
+| `just conformance` | The Jena differential and W3C conformance harness. |
+| `just deny` | The cargo-deny supply-chain audit. |
 
 Run `just --list` for the full set. A change is not "done" until
 `nix flake check` is green.
 
-## What is out of scope here
+## Conformance and differential parity
 
-Full W3C SPARQL 1.1 / SHACL conformance suites and byte-for-byte
-differential parity against Apache Jena are delivered by the separate
-testing feature
-([#7](https://github.com/lambdasistemi/rdf-shapes-wasm/issues/7)); this
-feature delivers the evaluation surface plus the smoke level of
-self-checking above.
+Correctness against the engine being replaced is established by a
+corpus-driven harness wired into the gate: curated W3C SPARQL 1.1 and
+SHACL Core cases run against committed expected results, plus a seed
+treasury corpus run differentially against Apache Jena (`arq` / `shacl`)
+as the reference oracle. See [Conformance](conformance.md) for the trust
+model and `conformance/README.md` for the corpus layout and provenance.
